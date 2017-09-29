@@ -1,6 +1,8 @@
 package wubbalubbadubdub.eecs448project1.data;
 
 
+import java.util.List;
+
 /**
  * Event.java
  * @author Damian, Lane
@@ -11,8 +13,10 @@ package wubbalubbadubdub.eecs448project1.data;
 public class Event implements Comparable<Event> {
 
     private int id;
+    //private List<Date> dates;// simon added it
     private String date;
     private String name;
+    //task list here, we should have one
     private String creator;
     private String timeslots;
 
