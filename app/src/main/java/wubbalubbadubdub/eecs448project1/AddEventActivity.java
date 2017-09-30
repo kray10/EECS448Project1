@@ -2,15 +2,11 @@ package wubbalubbadubdub.eecs448project1;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -26,6 +22,7 @@ import java.util.List;
 
 
 import wubbalubbadubdub.eecs448project1.data.DatabaseHelper;
+import wubbalubbadubdub.eecs448project1.data.DateSlot;
 import wubbalubbadubdub.eecs448project1.data.Event;
 import wubbalubbadubdub.eecs448project1.data.HelperMethods; //For toTime() method
 
@@ -36,8 +33,6 @@ import wubbalubbadubdub.eecs448project1.data.HelperMethods; //For toTime() metho
  * This Class allows the user to create an event and select timeslots for the event created
  */
 public class AddEventActivity extends Activity {
-    private List<dayitem> daylist;//listview item information, used to hold all date item
-    private ListView lvday; //listview, used to show all item information
 
     private DatabaseHelper dbHelper;
     private Toast statusMessage;
@@ -58,10 +53,6 @@ public class AddEventActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event);
-        lvday = (ListView) findViewById(R.id.date_list);
-        daylist = new ArrayList<>();
-        final DatePicker datePicker = (DatePicker) findViewById(R.id.datePicker);
-        final TextView emptybar = (TextView) findViewById(R.id.lvemptybar);
 
         dbHelper = new DatabaseHelper(getApplicationContext());
         statusMessage = Toast.makeText(this, "", Toast.LENGTH_SHORT);
@@ -74,39 +65,29 @@ public class AddEventActivity extends Activity {
         selectedTimeslots = new ArrayList<>();
 
         createTimeslotTable();
-        setupDatePicker(datePicker);
-        LayoutInflater inflater = getLayoutInflater();
 
-        final day_list_item adapter = new day_list_item(inflater,daylist);
-        lvday.setAdapter(adapter);
+        //Set Date Picker to current date, datePicker constraints etc.
+        int[] date = HelperMethods.getCurrentDate();
+        DatePicker datePicker = (DatePicker) findViewById(R.id.datePicker);
+        int month = date[0];
+        int day = date[1];
+        int year = date[2];
 
-        //it's a Imagebutton, used to add multi-day into a tiny list_view
-        ImageButton addDay = (ImageButton) findViewById(R.id.addDayToList);
-        addDay.setOnClickListener(new View.OnClickListener() {
+        //Now set the default date to today thru this init method I found
+        datePicker.init(year, month, day, new OnDateChangedListener() {
             @Override
-            public void onClick(View view) {
-                if(checkSameDate(datePicker.getDayOfMonth(),datePicker.getYear(),datePicker.getMonth())){
-                dayitem newdate = new dayitem(datePicker.getDayOfMonth(),datePicker.getYear(),datePicker.getMonth());
-                daylist.add(newdate);
-                day_list_item adapter = new day_list_item(getLayoutInflater(),daylist);
-                lvday.setAdapter(adapter);
-                if(checkDayListEmpty()){
-                    emptybar.setText("");
-                }
-            }}
-        });
-        ImageButton cleardate = (ImageButton) findViewById(R.id.removeall);
-        cleardate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                while (!daylist.isEmpty()) {
-                    daylist.remove(0);
-                }
-                day_list_item adapter = new day_list_item(getLayoutInflater(),daylist);
-                lvday.setAdapter(adapter);
-                emptybar.setText("Multi-Day List Empty Now");
+            public void onDateChanged(DatePicker dp, int y, int m, int d) {
+                //clearTimeslotTable(); ENABLE TO RESET TIMESLOTS UPON DATE SWITCH
             }
         });
+
+        datePicker.setMinDate(System.currentTimeMillis() - 1000);
+        Calendar max = Calendar.getInstance();
+        max.set(Calendar.YEAR, 2100);
+
+        datePicker.setMaxDate((max.getTime()).getTime());
+
+
     }
 
     /**
@@ -150,8 +131,12 @@ public class AddEventActivity extends Activity {
                 count++;
             }
             TableLayout.LayoutParams tableRowParams = new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,TableLayout.LayoutParams.WRAP_CONTENT);
+
             tableRowParams.setMargins(10, 2, 10, 2);
+
             tr.setLayoutParams(tableRowParams);
+
+
             layout.addView(tr, tableRowParams);
         }
     }
@@ -229,7 +214,7 @@ public class AddEventActivity extends Activity {
         }
 
         //Timeslot verification
-        if (e.getTimeslots().isEmpty()) {
+        if (e.getDateSlots().isEmpty()) {
             statusMessage.setText("ERROR: Please choose times for your event!");
             return false;
         }
@@ -237,6 +222,7 @@ public class AddEventActivity extends Activity {
         //Check if user is already signed up for any conflicting events
         /*pseudo: if intersection of (currentuser.signups.timeslots) list with (e.timeslots) list
          * is nonempty, -> conflict found, return false*/
+
         return true;
     }
 
@@ -259,12 +245,14 @@ public class AddEventActivity extends Activity {
 
         //Stringify timeslot list in int format for storage in db
         String timeslotIntList = HelperMethods.stringifyTimeslotInts(selectedTimeslots);
+        DateSlot dateSlot = new DateSlot(timeslotIntList, date);
+        List<DateSlot> dateSlotList = new ArrayList<>();
+        dateSlotList.add(dateSlot);
 
         //Create an event, attempt to verify it, and send to db if all is well
         /*Event ID is set to -1 because it's useless until a real ID is assigned
          *by the primary key upon insertion to the database after successful verification.*/
-        Event e = new Event(-1, date, name, currentUser, timeslotIntList);
-
+        Event e = new Event(-1,  name, currentUser, dateSlotList);
         if (verify(e)){
 
             //Add event and automatically sign creator up for duration of event
@@ -280,49 +268,6 @@ public class AddEventActivity extends Activity {
 
         }else statusMessage.show();
     }
-    public void setupDatePicker(DatePicker datePicker){
-        //Set Date Picker to current date, datePicker constraints etc.
-        int[] date = HelperMethods.getCurrentDate();
-        int month = date[0];
-        int day = date[1];
-        int year = date[2];
 
-        //Now set the default date to today thru this init method I found
-        datePicker.init(year, month, day, new OnDateChangedListener() {
-            @Override
-            public void onDateChanged(DatePicker dp, int y, int m, int d) {
-                //clearTimeslotTable(); ENABLE TO RESET TIMESLOTS UPON DATE SWITCH
-            }
-        });
 
-        datePicker.setMinDate(System.currentTimeMillis() - 1000);
-        Calendar max = Calendar.getInstance();
-        max.set(Calendar.YEAR, 2100);
-
-        datePicker.setMaxDate((max.getTime()).getTime());
-
-    }
-    public boolean checkDayListEmpty(){
-        if(daylist.isEmpty()) {
-            return false;
-        }else{
-            return true;
-        }
-    }
-
-    public int getSizeOfListView(){
-        if(daylist.isEmpty())
-        {return 0;}
-        return daylist.size();
-    }
-    public boolean checkSameDate(int day, int year ,int month){
-        for(int i = 0; i < daylist.size(); i++) {
-            if((daylist.get(i).getDay() == day)&&(daylist.get(i).getMonth() == month)&&(daylist.get(i).getYear() == year)){
-                statusMessage.setText("This day is already in your List");
-                statusMessage.show();
-                return false;
-            }
-        }
-        return true;
-    }
 }
