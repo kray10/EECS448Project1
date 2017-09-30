@@ -372,7 +372,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @param availability Integer List of timeslots
      * @return long value of the row in the table that was created
      */
-    public long addSignup(int eventID, String user, List<Integer> availability) {// TODO create entry in signups table
+    public long addSignup(int eventID, String user, List<Integer> availability, String date) {// TODO create entry in signups table
         SQLiteDatabase db = this.getWritableDatabase();
 
         String avail = HelperMethods.stringifyTimeslotInts(availability);
@@ -381,35 +381,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(DBContract.SignupTable.COLUMN_NAME_USER, user);
         values.put(DBContract.SignupTable.COLUMN_NAME_AVAIL, avail);
         values.put(DBContract.SignupTable.COLUMN_NAME_EVENT, eventID);
+        values.put(DBContract.SignupTable.COLUMN_NAME_DAY, date);
 
         return db.insert(DBContract.SignupTable.TABLE_NAME, null, values);
     }
 
     /**
-     * This method will return a Hashmap of users along with availability for a given event
+     * This method will return a Hashmap of users along with DateSlots for a given event
      * @param eventID int ID of event
-     * @return Hashmap of user keypairs with availability keyvalues
+     * @return Hashmap of user keypairs with DateSlot keyvalues
      */
-    public Map<String, String> getSignups(int eventID) { // TODO return list of signed up users(?) for given event
+    public Map<String, DateSlot> getSignups(int eventID) { // TODO return list of signed up users(?) for given event
         SQLiteDatabase db = this.getReadableDatabase();
-        Map<String, String> userSignup = new HashMap<>();
+        Map<String, DateSlot> userSignup = new HashMap<>();
 
         String[] columns = {
                 DBContract.SignupTable.COLUMN_NAME_USER,
-                DBContract.SignupTable.COLUMN_NAME_AVAIL
+                DBContract.SignupTable.COLUMN_NAME_AVAIL,
+                DBContract.SignupTable.COLUMN_NAME_DAY
         };
         String[] where = {Integer.toString(eventID)};
+
+        String sortOrder = DBContract.SignupTable.COLUMN_NAME_USER + " COLLATE NOCASE ASC, " + DBContract.SignupTable.COLUMN_NAME_DAY + " COLLATE NOCASE ASC";
 
         Cursor query = db.query(
                 DBContract.SignupTable.TABLE_NAME,
                 columns,
                 "eid = ?", where, null, null,
-                null
+                sortOrder
         );
-
+        System.out.println("Made it to query");
         while (query.moveToNext()) {
-            userSignup.put(query.getString(query.getColumnIndexOrThrow(DBContract.SignupTable.COLUMN_NAME_USER)),
-                    query.getString(query.getColumnIndexOrThrow(DBContract.SignupTable.COLUMN_NAME_AVAIL)));
+            String availablity = query.getString(query.getColumnIndexOrThrow(DBContract.SignupTable.COLUMN_NAME_AVAIL));
+            String date = query.getString(query.getColumnIndexOrThrow(DBContract.SignupTable.COLUMN_NAME_DAY));
+            DateSlot dateSlot = new DateSlot(availablity, date);
+            userSignup.put(query.getString(query.getColumnIndexOrThrow(DBContract.SignupTable.COLUMN_NAME_USER)), dateSlot);
         }
 
         return userSignup;
@@ -422,7 +428,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @param availability Integer List of timeslots
      * @return int value of the row in the table that was updated
      */
-    public int updateSignup(int eventID, String user, List<Integer> availability) {
+    public int updateSignup(int eventID, String user, List<Integer> availability, String date) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         String avail = HelperMethods.stringifyTimeslotInts(availability);
@@ -430,8 +436,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(DBContract.SignupTable.COLUMN_NAME_AVAIL, avail);
 
-        String selection = DBContract.SignupTable.COLUMN_NAME_USER + " = ? AND " + DBContract.SignupTable.COLUMN_NAME_EVENT + " = ?";
-        String[] selectionArgs = {user, Integer.toString(eventID)};
+        String selection = DBContract.SignupTable.COLUMN_NAME_USER + " = ? AND " + DBContract.SignupTable.COLUMN_NAME_EVENT + " = ? AND " +
+                DBContract.SignupTable.COLUMN_NAME_DAY + " = ?";
+        String[] selectionArgs = {user, Integer.toString(eventID), date};
 
         return db.update(
                 DBContract.SignupTable.TABLE_NAME,

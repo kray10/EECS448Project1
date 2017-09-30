@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import wubbalubbadubdub.eecs448project1.data.DatabaseHelper;
+import wubbalubbadubdub.eecs448project1.data.DateSlot;
 import wubbalubbadubdub.eecs448project1.data.Event;
 import wubbalubbadubdub.eecs448project1.data.HelperMethods;
 
@@ -44,7 +45,7 @@ public class ViewActivity extends Activity {
     private int selectedRow = -1;
     private int selectedSlot = -1;
 
-    private Map<String, String> userSignups;
+    private Map<String, DateSlot> userSignups;
 
     private Toast statusMessage;
 
@@ -128,7 +129,7 @@ public class ViewActivity extends Activity {
             layout.removeAllViews();
         }
 
-        List<Integer> currentUserSelection = (prevSignup) ? HelperMethods.listifyTimeslotInts(userSignups.get(currentUser)) : null;
+        List<Integer> currentUserSelection = (prevSignup) ? HelperMethods.listifyTimeslotInts(userSignups.get(currentUser).getTimeslots()) : null;
 
         if (prevSignup) selectedTimeslots = currentUserSelection;
 
@@ -243,7 +244,7 @@ public class ViewActivity extends Activity {
 
         layout.addView(header);
         int count = 1;
-        for (Map.Entry<String, String> entry : userSignups.entrySet()) {
+        for (Map.Entry<String, DateSlot> entry : userSignups.entrySet()) {
             TableRow signupRow = new TableRow(this);
 
             TextView username = new TextView(this);
@@ -251,7 +252,7 @@ public class ViewActivity extends Activity {
             username.setText(entry.getKey());
             username.setTypeface(null, Typeface.BOLD);
             signupRow.addView(username);
-            List<Integer> slots = HelperMethods.listifyTimeslotInts(entry.getValue());
+            List<Integer> slots = HelperMethods.listifyTimeslotInts(entry.getValue().getTimeslots());
 
             for (int slot : currentTimeslots) {
                 TextView avail = new TextView(this);
@@ -260,7 +261,7 @@ public class ViewActivity extends Activity {
                     // User is signed up for this
                     avail.setText("AVAILABLE");
                     avail.setBackgroundColor(GREEN_MAT);
-                } else if (entry.getValue().isEmpty()) {
+                } else if (entry.getValue().getTimeslots().isEmpty()) {
                     avail.setBackgroundColor(Color.RED);
                 } else {
                     avail.setBackgroundColor(Color.LTGRAY);
@@ -301,14 +302,14 @@ public class ViewActivity extends Activity {
 
             String user = ((TextView)highlight.getChildAt(0)).getText().toString();
 
-            disp = user + "'s Availability: " + HelperMethods.getTimeString(HelperMethods.listifyTimeslotInts((userSignups.get(user))), format);
+            disp = user + "'s Availability: " + HelperMethods.getTimeString(HelperMethods.listifyTimeslotInts((userSignups.get(user).getTimeslots())), format);
         } else {
 
             String users = "";
             int userCount = 0;
 
-            for (Map.Entry<String, String> entry : userSignups.entrySet()) {
-                if (HelperMethods.listifyTimeslotInts(entry.getValue()).contains(selectedSlot)) {
+            for (Map.Entry<String, DateSlot> entry : userSignups.entrySet()) {
+                if (HelperMethods.listifyTimeslotInts(entry.getValue().getTimeslots()).contains(selectedSlot)) {
                     userCount++;
                     users = users + entry.getKey() + ", ";
                 }
@@ -329,14 +330,14 @@ public class ViewActivity extends Activity {
     public void saveSelection(View v) {
         if (prevSignup) {
             // User has signed up previously, so call the update method
-            if (dbHelper.updateSignup(currentID, currentUser, selectedTimeslots) > 0) {
+            if (dbHelper.updateSignup(currentID, currentUser, selectedTimeslots, currentEvent.getDateSlots().get(0).getDate()) > 0) {
                 statusMessage.setText("Successfully saved your availability");
             } else {
                 statusMessage.setText("Something went wrong");
             }
         } else {
             // User has not signed up before, so call the insert method
-            if (dbHelper.addSignup(currentID,currentUser,selectedTimeslots) != -1) {
+            if (dbHelper.addSignup(currentID,currentUser,selectedTimeslots, currentEvent.getDateSlots().get(0).getDate()) != -1) {
                 statusMessage.setText("Successfully saved your availability");
             } else {
                 statusMessage.setText("Somethign went wrong");
