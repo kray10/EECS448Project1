@@ -40,6 +40,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(DBContract.EventTable.CREATE_TABLE);
         db.execSQL(DBContract.SignupTable.CREATE_TABLE);
         db.execSQL(DBContract.TimeSlotTable.CREATE_TABLE);
+        db.execSQL(DBContract.TaskTable.CREATE_TABLE);
     }
 
     /**
@@ -129,8 +130,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         //Get the ID of the event we just created and return it
         String[] columns = {DBContract.EventTable._ID};
         String sortOrder = DBContract.EventTable._ID + " DESC";
-
-        System.out.print("Made it");
+        
         Cursor query = db.query(
                 DBContract.EventTable.TABLE_NAME,
                 columns,
@@ -147,6 +147,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(DBContract.TimeSlotTable.COLUMN_NAME_TIMESLOTS, e.getDateSlots().get(i).getTimeslots());
             values.put(DBContract.TimeSlotTable.COLUMN_NAME_EVENT, eventID);
             db.insert(DBContract.TimeSlotTable.TABLE_NAME, null, values);
+        }
+
+        for(int i = 0; i < e.getTasks().size(); i++) {
+            values.clear();
+            values.put(DBContract.TaskTable.COLUMN_NAME_TASKNAME, e.getTasks().get(i).getTaskName());
+            values.put(DBContract.TaskTable.COLUMN_NAME_HELPER, e.getTasks().get(i).getTaskHelper());
+            values.put(DBContract.TaskTable.COLUMN_NAME_EVENT, eventID);
+            db.insert(DBContract.TaskTable.TABLE_NAME, null, values);
         }
 
         return eventID;
@@ -169,15 +177,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 DBContract.EventTable.COLUMN_NAME_CREATOR,
         };
 
-        String[] columnsTime = {
-                DBContract.TimeSlotTable.COLUMN_NAME_EVENT,
-                DBContract.TimeSlotTable.COLUMN_NAME_TIMESLOTS,
-                DBContract.TimeSlotTable.COLUMN_NAME_DAY
-        };
-
         //Sort by day for now. Could hypothetically get weird when multiple years are involved
         String sortOrderEvent = DBContract.EventTable.COLUMN_NAME_CREATOR + " COLLATE NOCASE ASC";
-        String sortOrderTime = DBContract.TimeSlotTable.COLUMN_NAME_DAY + " COLLATE NOCASE ASC";
 
         Cursor queryEvent = db.query(
                 DBContract.EventTable.TABLE_NAME,
@@ -186,39 +187,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 sortOrderEvent
         );
 
-
-
         //Populate event vector
         while (queryEvent.moveToNext()) {
 
             int id;
-            String title, creator, timeslots, date;
-            List<DateSlot> dateSlotList = new ArrayList<>();
+            String title, creator;
 
             id = Integer.parseInt(queryEvent.getString(queryEvent.getColumnIndexOrThrow(DBContract.EventTable._ID)));
             title = queryEvent.getString(queryEvent.getColumnIndexOrThrow(DBContract.EventTable.COLUMN_NAME_TITLE));
             creator = queryEvent.getString(queryEvent.getColumnIndexOrThrow(DBContract.EventTable.COLUMN_NAME_CREATOR));
 
-            String[] args = {"" + id};
+            List<DateSlot> dateSlotList = getDateSlots(id,db);
 
-            Cursor queryTime = db.query(
-                    DBContract.TimeSlotTable.TABLE_NAME,
-                    columnsTime,
-                    "eid = ?", args, null, null,
-                    sortOrderTime
-            );
-
-            while(queryTime.moveToNext()) {
-                timeslots = queryTime.getString(queryTime.getColumnIndexOrThrow(DBContract.TimeSlotTable.COLUMN_NAME_TIMESLOTS));
-                date = queryTime.getString(queryTime.getColumnIndexOrThrow(DBContract.TimeSlotTable.COLUMN_NAME_DAY));
-                DateSlot dateSlot = new DateSlot(timeslots, date);
-                dateSlotList.add(dateSlot);
-            }
-
-            queryTime.close();
+           List<Task> taskList = getTasks(id, db);
 
             //Create Event object from row and add to Vector
-            Event e = new Event(id, title, creator, dateSlotList); // LOL This stuff was in the wrong order... Come on guys...
+            Event e = new Event(id, title, creator, dateSlotList, taskList); // LOL This stuff was in the wrong order... Come on guys...
             sortedListOfEvents.add(e);
         }
 
@@ -245,15 +229,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 DBContract.EventTable.COLUMN_NAME_CREATOR,
         };
 
-        String[] columnsTime = {
-                DBContract.TimeSlotTable.COLUMN_NAME_EVENT,
-                DBContract.TimeSlotTable.COLUMN_NAME_TIMESLOTS,
-                DBContract.TimeSlotTable.COLUMN_NAME_DAY
-        };
-
         //Sort by day for now. Could hypothetically get weird when multiple years are involved
         String sortOrder = DBContract.EventTable.COLUMN_NAME_CREATOR + " COLLATE NOCASE ASC";
-        String sortOrderTime = DBContract.TimeSlotTable.COLUMN_NAME_DAY + " COLLATE NOCASE ASC";
 
         Cursor query = db.query(
                 DBContract.EventTable.TABLE_NAME,
@@ -266,32 +243,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         while (query.moveToNext()) {
 
             int id;
-            String title, timeslots, creator, date;
-            List<DateSlot> dateSlotList = new ArrayList<>();
+            String title, creator;
 
             id = Integer.parseInt(query.getString(query.getColumnIndexOrThrow(DBContract.EventTable._ID)));
             title = query.getString(query.getColumnIndexOrThrow(DBContract.EventTable.COLUMN_NAME_TITLE));
             creator = query.getString(query.getColumnIndexOrThrow(DBContract.EventTable.COLUMN_NAME_CREATOR));
-            String[] args = {"" + id};
 
-            Cursor queryTime = db.query(
-                    DBContract.TimeSlotTable.TABLE_NAME,
-                    columnsTime,
-                    "eid = ?", args, null, null,
-                    sortOrderTime
-            );
+            List<DateSlot> dateSlotList = getDateSlots(id, db);
 
-            while(queryTime.moveToNext()) {
-                timeslots = queryTime.getString(queryTime.getColumnIndexOrThrow(DBContract.TimeSlotTable.COLUMN_NAME_TIMESLOTS));
-                date = queryTime.getString(queryTime.getColumnIndexOrThrow(DBContract.TimeSlotTable.COLUMN_NAME_DAY));
-                DateSlot dateSlot = new DateSlot(timeslots, date);
-                dateSlotList.add(dateSlot);
-            }
-
-            queryTime.close();
+            List<Task> taskList = getTasks(id, db);
 
             //Create Event object from row and add to Vector
-            Event e = new Event(id, title, creator, dateSlotList); // LOL This stuff was in the wrong order... Come on guys...
+            Event e = new Event(id, title, creator, dateSlotList, taskList); // LOL This stuff was in the wrong order... Come on guys...
             sortedListOfEvents.add(e);
         }
 
@@ -319,13 +282,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 DBContract.EventTable.COLUMN_NAME_TITLE
         };
 
-        String[] columnsTime = {
-                DBContract.TimeSlotTable.COLUMN_NAME_TIMESLOTS,
-                DBContract.TimeSlotTable.COLUMN_NAME_DAY,
-        };
-
-        String sortOrderTime = DBContract.TimeSlotTable.COLUMN_NAME_DAY + " COLLATE NOCASE ASC";
-
         String[] where = {Integer.toString(eventID)};
 
         Cursor query = db.query(
@@ -342,25 +298,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         query.close();
 
-        Cursor queryTime = db.query(
-                DBContract.TimeSlotTable.TABLE_NAME,
-                columnsTime,
-                "eid = ?", where, null, null,
-                sortOrderTime
-        );
-        List<DateSlot> dateSlotList = new ArrayList<>();
-        String timeslots, date;
+        List<DateSlot> dateSlotList = getDateSlots(eventID, db);
+        List <Task> taskList = getTasks(eventID, db);
 
-        while(queryTime.moveToNext()) {
-            timeslots = queryTime.getString(queryTime.getColumnIndexOrThrow(DBContract.TimeSlotTable.COLUMN_NAME_TIMESLOTS));
-            date = queryTime.getString(queryTime.getColumnIndexOrThrow(DBContract.TimeSlotTable.COLUMN_NAME_DAY));
-            DateSlot dateSlot = new DateSlot(timeslots, date);
-            dateSlotList.add(dateSlot);
-        }
-
-        Event returnEvent = new Event(eventID, name, creator, dateSlotList);
-
-        queryTime.close();
+        Event returnEvent = new Event(eventID, name, creator, dateSlotList, taskList);
 
         return returnEvent;
     }
@@ -372,7 +313,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @param availability Integer List of timeslots
      * @return long value of the row in the table that was created
      */
-    public long addSignup(int eventID, String user, List<Integer> availability) {// TODO create entry in signups table
+    public long addSignup(int eventID, String user, List<Integer> availability, String date) {// TODO create entry in signups table
         SQLiteDatabase db = this.getWritableDatabase();
 
         String avail = HelperMethods.stringifyTimeslotInts(availability);
@@ -381,35 +322,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(DBContract.SignupTable.COLUMN_NAME_USER, user);
         values.put(DBContract.SignupTable.COLUMN_NAME_AVAIL, avail);
         values.put(DBContract.SignupTable.COLUMN_NAME_EVENT, eventID);
+        values.put(DBContract.SignupTable.COLUMN_NAME_DAY, date);
 
         return db.insert(DBContract.SignupTable.TABLE_NAME, null, values);
     }
 
     /**
-     * This method will return a Hashmap of users along with availability for a given event
+     * This method will return a Hashmap of users along with DateSlots for a given event
      * @param eventID int ID of event
-     * @return Hashmap of user keypairs with availability keyvalues
+     * @return Hashmap of user keypairs with DateSlot keyvalues
      */
-    public Map<String, String> getSignups(int eventID) { // TODO return list of signed up users(?) for given event
+    public Map<String, DateSlot> getSignups(int eventID) { // TODO return list of signed up users(?) for given event
         SQLiteDatabase db = this.getReadableDatabase();
-        Map<String, String> userSignup = new HashMap<>();
+        Map<String, DateSlot> userSignup = new HashMap<>();
 
         String[] columns = {
                 DBContract.SignupTable.COLUMN_NAME_USER,
-                DBContract.SignupTable.COLUMN_NAME_AVAIL
+                DBContract.SignupTable.COLUMN_NAME_AVAIL,
+                DBContract.SignupTable.COLUMN_NAME_DAY
         };
         String[] where = {Integer.toString(eventID)};
+
+        String sortOrder = DBContract.SignupTable.COLUMN_NAME_USER + " COLLATE NOCASE ASC, " + DBContract.SignupTable.COLUMN_NAME_DAY + " COLLATE NOCASE ASC";
 
         Cursor query = db.query(
                 DBContract.SignupTable.TABLE_NAME,
                 columns,
                 "eid = ?", where, null, null,
-                null
+                sortOrder
         );
 
         while (query.moveToNext()) {
-            userSignup.put(query.getString(query.getColumnIndexOrThrow(DBContract.SignupTable.COLUMN_NAME_USER)),
-                    query.getString(query.getColumnIndexOrThrow(DBContract.SignupTable.COLUMN_NAME_AVAIL)));
+            String availablity = query.getString(query.getColumnIndexOrThrow(DBContract.SignupTable.COLUMN_NAME_AVAIL));
+            String date = query.getString(query.getColumnIndexOrThrow(DBContract.SignupTable.COLUMN_NAME_DAY));
+            DateSlot dateSlot = new DateSlot(availablity, date);
+            userSignup.put(query.getString(query.getColumnIndexOrThrow(DBContract.SignupTable.COLUMN_NAME_USER)), dateSlot);
         }
 
         return userSignup;
@@ -422,7 +369,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @param availability Integer List of timeslots
      * @return int value of the row in the table that was updated
      */
-    public int updateSignup(int eventID, String user, List<Integer> availability) {
+    public int updateSignup(int eventID, String user, List<Integer> availability, String date) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         String avail = HelperMethods.stringifyTimeslotInts(availability);
@@ -430,8 +377,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(DBContract.SignupTable.COLUMN_NAME_AVAIL, avail);
 
-        String selection = DBContract.SignupTable.COLUMN_NAME_USER + " = ? AND " + DBContract.SignupTable.COLUMN_NAME_EVENT + " = ?";
-        String[] selectionArgs = {user, Integer.toString(eventID)};
+        String selection = DBContract.SignupTable.COLUMN_NAME_USER + " = ? AND " + DBContract.SignupTable.COLUMN_NAME_EVENT + " = ? AND " +
+                DBContract.SignupTable.COLUMN_NAME_DAY + " = ?";
+        String[] selectionArgs = {user, Integer.toString(eventID), date};
 
         return db.update(
                 DBContract.SignupTable.TABLE_NAME,
@@ -439,6 +387,67 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 selection,
                 selectionArgs
         );
+    }
+
+    private List<Task> getTasks (int eventID, SQLiteDatabase db) {
+
+        String[] columnsTasks = {
+                DBContract.TaskTable.COLUMN_NAME_TASKNAME,
+                DBContract.TaskTable.COLUMN_NAME_HELPER
+        };
+
+        String[] where = {Integer.toString(eventID)};
+
+        Cursor queryTasks = db.query(
+                DBContract.TaskTable.TABLE_NAME,
+                columnsTasks,
+                "eid = ?", where, null, null, null
+        );
+        List<Task> taskList = new ArrayList<>();
+        String taskName, helper;
+
+        while(queryTasks.moveToNext()) {
+            taskName = queryTasks.getString(queryTasks.getColumnIndexOrThrow(DBContract.TaskTable.COLUMN_NAME_TASKNAME));
+            helper = queryTasks.getString(queryTasks.getColumnIndexOrThrow(DBContract.TaskTable.COLUMN_NAME_HELPER));
+            Task task = new Task(taskName, helper);
+            taskList.add(task);
+        }
+
+        queryTasks.close();
+
+        return taskList;
+    }
+
+    private List<DateSlot> getDateSlots(int eventID, SQLiteDatabase db) {
+
+        String[] columnsTime = {
+                DBContract.TimeSlotTable.COLUMN_NAME_TIMESLOTS,
+                DBContract.TimeSlotTable.COLUMN_NAME_DAY,
+        };
+
+        String[] where = {Integer.toString(eventID)};
+
+        String sortOrderTime = DBContract.TimeSlotTable.COLUMN_NAME_DAY + " COLLATE NOCASE ASC";
+
+        Cursor queryTime = db.query(
+                DBContract.TimeSlotTable.TABLE_NAME,
+                columnsTime,
+                "eid = ?", where, null, null,
+                sortOrderTime
+        );
+
+        List<DateSlot> dateSlotList = new ArrayList<>();
+        String timeslots, date;
+
+        while(queryTime.moveToNext()) {
+            timeslots = queryTime.getString(queryTime.getColumnIndexOrThrow(DBContract.TimeSlotTable.COLUMN_NAME_TIMESLOTS));
+            date = queryTime.getString(queryTime.getColumnIndexOrThrow(DBContract.TimeSlotTable.COLUMN_NAME_DAY));
+            DateSlot dateSlot = new DateSlot(timeslots, date);
+            dateSlotList.add(dateSlot);
+        }
+        queryTime.close();
+
+        return  dateSlotList;
     }
 
 

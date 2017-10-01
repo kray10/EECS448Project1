@@ -16,6 +16,7 @@ public class Event implements Comparable<Event> {
     private String name;
     private String creator;
     private List<DateSlot> dateSlots;
+    private List<Task> tasksList;
 
     /**
      * Constructor for an Event. Events will always be constructed this way.
@@ -24,11 +25,12 @@ public class Event implements Comparable<Event> {
      * @param inputCreator String name of the Event Creator
      * @param inputDateSlots List of DateSlots that the event is schedulaed for
      */
-    public Event(int inputID, String inputName, String inputCreator, List<DateSlot> inputDateSlots) {
+    public Event(int inputID, String inputName, String inputCreator, List<DateSlot> inputDateSlots, List<Task> inputTasks) {
         id = inputID;
         name = inputName;
         creator = inputCreator;
         dateSlots = inputDateSlots;
+        tasksList = inputTasks;
     }
 
     /**
@@ -85,5 +87,11 @@ public class Event implements Comparable<Event> {
         return creator;
     }
 
-
+    /**
+     * Getter for the Event Tasklist List
+     * @return List<Task> tasks associated with event
+     */
+    public List<Task> getTasks() {
+        return tasksList;
+    }
 }
