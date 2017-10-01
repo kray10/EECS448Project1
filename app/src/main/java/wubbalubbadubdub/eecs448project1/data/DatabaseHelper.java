@@ -130,8 +130,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         //Get the ID of the event we just created and return it
         String[] columns = {DBContract.EventTable._ID};
         String sortOrder = DBContract.EventTable._ID + " DESC";
-
-        System.out.print("Made it");
+        
         Cursor query = db.query(
                 DBContract.EventTable.TABLE_NAME,
                 columns,
@@ -352,7 +351,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "eid = ?", where, null, null,
                 sortOrder
         );
-        System.out.println("Made it to query");
+
         while (query.moveToNext()) {
             String availablity = query.getString(query.getColumnIndexOrThrow(DBContract.SignupTable.COLUMN_NAME_AVAIL));
             String date = query.getString(query.getColumnIndexOrThrow(DBContract.SignupTable.COLUMN_NAME_DAY));

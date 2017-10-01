@@ -248,12 +248,25 @@ public class AddEventActivity extends Activity {
      */
     public void onSaveButtonClick(View v) {
 
-        //Build date string for event
-        DatePicker datePicker = (DatePicker) findViewById(R.id.datePicker);
-        int month = datePicker.getMonth() + 1;
-        int day = datePicker.getDayOfMonth();
-        int year = datePicker.getYear();
-        String date = HelperMethods.dateToString(month, day, year);
+        List<DateSlot> dateSlotList = new ArrayList<>();
+        List<String> dates = new ArrayList<>();
+
+        // Get dates from date picker or date list
+        if (daylist.isEmpty()) {
+            //Build date string for event
+            DatePicker datePicker = (DatePicker) findViewById(R.id.datePicker);
+            int month = datePicker.getMonth() + 1;
+            int day = datePicker.getDayOfMonth();
+            int year = datePicker.getYear();
+            dates.add(HelperMethods.dateToString(month, day, year));
+        } else {
+            for (int i = 0; i < daylist.size(); i++) {
+                int month = daylist.get(i).getMonth() + 1;
+                int day = daylist.get(i).getDay();
+                int year = daylist.get(i).getYear();
+                dates.add(HelperMethods.dateToString(month, day, year));
+            }
+        }
 
         //Get name of event
         EditText nameText = (EditText) findViewById(R.id.textName);
@@ -261,20 +274,26 @@ public class AddEventActivity extends Activity {
 
         //Stringify timeslot list in int format for storage in db
         String timeslotIntList = HelperMethods.stringifyTimeslotInts(selectedTimeslots);
-        DateSlot dateSlot = new DateSlot(timeslotIntList, date);
-        List<DateSlot> dateSlotList = new ArrayList<>();
-        dateSlotList.add(dateSlot);
+
+        for (int i = 0; i < dates.size(); i++) {
+            DateSlot dateSlot = new DateSlot(timeslotIntList, dates.get(i));
+            dateSlotList.add(dateSlot);
+        }
+
         List<Task> taskList = new ArrayList<>();
 
         //Create an event, attempt to verify it, and send to db if all is well
         /*Event ID is set to -1 because it's useless until a real ID is assigned
          *by the primary key upon insertion to the database after successful verification.*/
         Event e = new Event(-1,  name, currentUser, dateSlotList, taskList);
+        System.out.println("Number of dates: " + dates.size());
         if (verify(e)){
 
             //Add event and automatically sign creator up for duration of event
             int eventID = dbHelper.addEvent(e);
-            dbHelper.addSignup(eventID, currentUser, selectedTimeslots, date);
+            for (int i = 0; i < dates.size(); i ++) {
+                dbHelper.addSignup(eventID, currentUser, selectedTimeslots, dates.get(i));
+            }
 
             statusMessage.setText("Your event has been created.");
             statusMessage.show();
