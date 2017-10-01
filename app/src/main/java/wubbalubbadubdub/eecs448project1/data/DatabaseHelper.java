@@ -198,9 +198,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             title = queryEvent.getString(queryEvent.getColumnIndexOrThrow(DBContract.EventTable.COLUMN_NAME_TITLE));
             creator = queryEvent.getString(queryEvent.getColumnIndexOrThrow(DBContract.EventTable.COLUMN_NAME_CREATOR));
 
-            List<DateSlot> dateSlotList = getDateSlots(id);
+            List<DateSlot> dateSlotList = getDateSlots(id,db);
 
-           List<Task> taskList = getTasks(id);
+           List<Task> taskList = getTasks(id, db);
 
             //Create Event object from row and add to Vector
             Event e = new Event(id, title, creator, dateSlotList, taskList); // LOL This stuff was in the wrong order... Come on guys...
@@ -250,9 +250,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             title = query.getString(query.getColumnIndexOrThrow(DBContract.EventTable.COLUMN_NAME_TITLE));
             creator = query.getString(query.getColumnIndexOrThrow(DBContract.EventTable.COLUMN_NAME_CREATOR));
 
-            List<DateSlot> dateSlotList = getDateSlots(id);
+            List<DateSlot> dateSlotList = getDateSlots(id, db);
 
-            List<Task> taskList = getTasks(id);
+            List<Task> taskList = getTasks(id, db);
 
             //Create Event object from row and add to Vector
             Event e = new Event(id, title, creator, dateSlotList, taskList); // LOL This stuff was in the wrong order... Come on guys...
@@ -299,8 +299,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         query.close();
 
-        List<DateSlot> dateSlotList = getDateSlots(eventID);
-        List <Task> taskList = getTasks(eventID);
+        List<DateSlot> dateSlotList = getDateSlots(eventID, db);
+        List <Task> taskList = getTasks(eventID, db);
 
         Event returnEvent = new Event(eventID, name, creator, dateSlotList, taskList);
 
@@ -390,8 +390,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
     }
 
-    public List<Task> getTasks (int eventID) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    private List<Task> getTasks (int eventID, SQLiteDatabase db) {
 
         String[] columnsTasks = {
                 DBContract.TaskTable.COLUMN_NAME_TASKNAME,
@@ -420,8 +419,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return taskList;
     }
 
-    public List<DateSlot> getDateSlots(int eventID) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    private List<DateSlot> getDateSlots(int eventID, SQLiteDatabase db) {
 
         String[] columnsTime = {
                 DBContract.TimeSlotTable.COLUMN_NAME_TIMESLOTS,
