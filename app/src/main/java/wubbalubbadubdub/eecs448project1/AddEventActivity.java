@@ -25,6 +25,7 @@ import wubbalubbadubdub.eecs448project1.data.DatabaseHelper;
 import wubbalubbadubdub.eecs448project1.data.DateSlot;
 import wubbalubbadubdub.eecs448project1.data.Event;
 import wubbalubbadubdub.eecs448project1.data.HelperMethods; //For toTime() method
+import wubbalubbadubdub.eecs448project1.data.Task;
 
 /**
  * AddEventActivity.java
@@ -248,16 +249,17 @@ public class AddEventActivity extends Activity {
         DateSlot dateSlot = new DateSlot(timeslotIntList, date);
         List<DateSlot> dateSlotList = new ArrayList<>();
         dateSlotList.add(dateSlot);
+        List<Task> taskList = new ArrayList<>();
 
         //Create an event, attempt to verify it, and send to db if all is well
         /*Event ID is set to -1 because it's useless until a real ID is assigned
          *by the primary key upon insertion to the database after successful verification.*/
-        Event e = new Event(-1,  name, currentUser, dateSlotList);
+        Event e = new Event(-1,  name, currentUser, dateSlotList, taskList);
         if (verify(e)){
 
             //Add event and automatically sign creator up for duration of event
             int eventID = dbHelper.addEvent(e);
-            dbHelper.addSignup(eventID, currentUser, selectedTimeslots);
+            dbHelper.addSignup(eventID, currentUser, selectedTimeslots, date);
 
             statusMessage.setText("Your event has been created.");
             statusMessage.show();

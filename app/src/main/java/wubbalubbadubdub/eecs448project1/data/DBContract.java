@@ -96,4 +96,24 @@ public final class DBContract {
                 COLUMN_NAME_DAY + " TEXT);";
         public static final String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
+
+    /**
+     * {Class} Tasks
+     * This defines the columns for our Tasks table
+     * @since 2.0
+     */
+    public static class TaskTable implements BaseColumns {
+        public static final String TABLE_NAME = "tasks";
+        public static final String COLUMN_NAME_EVENT = "eid";
+        public static final String COLUMN_NAME_HELPER = "taskhelper";
+        public static final String COLUMN_NAME_TASKNAME = "day";
+
+        public static final String CREATE_TABLE = "CREATE TABLE " +
+                TABLE_NAME + " (" +
+                _ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                COLUMN_NAME_EVENT + " INTEGER," +
+                COLUMN_NAME_HELPER + " TEXT," +
+                COLUMN_NAME_TASKNAME + " TEXT);";
+        public static final String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
 }
