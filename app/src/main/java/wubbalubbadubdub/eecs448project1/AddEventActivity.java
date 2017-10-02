@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -38,6 +40,7 @@ import wubbalubbadubdub.eecs448project1.data.Task;
  * This Class allows the user to create an event and select timeslots for the event created
  */
 public class AddEventActivity extends Activity {
+    private List<DateSlot> DateSlotOfEvent;
     private List<dayitem> daylist;//listview item information, used to hold all date item
     private ListView lvday; //listview, used to show all item information
 
@@ -46,6 +49,7 @@ public class AddEventActivity extends Activity {
 
     private String currentUser;
     private List<Integer> selectedTimeslots;
+
     private boolean format = false; //Time format: false=12h | true=24h
 
     //Color Variables - Material Design
@@ -71,7 +75,7 @@ public class AddEventActivity extends Activity {
         Intent intent = getIntent();
         currentUser = intent.getStringExtra("currentUser");
 
-        TextView welcome = (TextView) findViewById(R.id.tvWelcome);
+        final TextView welcome = (TextView) findViewById(R.id.tvWelcome);
         welcome.setText(currentUser + ", create your event");
         selectedTimeslots = new ArrayList<>();
 
@@ -81,6 +85,21 @@ public class AddEventActivity extends Activity {
 
         final day_list_item adapter = new day_list_item(inflater,daylist);
         lvday.setAdapter(adapter);
+
+        lvday.setClickable(true);
+        lvday.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                clearTimeslotTable();
+                selectedTimeslots = daylist.get(i).getTimeSlotes();
+                updateTimeDisplay();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
 
         //it's a Imagebutton, used to add multi-day into a tiny list_view
         ImageButton addDay = (ImageButton) findViewById(R.id.addDayToList);
@@ -113,6 +132,7 @@ public class AddEventActivity extends Activity {
 
     /**
      * This function will create the table of buttons to select an event's timeframe
+     *
      */
     private void createTimeslotTable() {
         TableLayout layout = (TableLayout) findViewById(R.id.tbLayout);
@@ -133,19 +153,24 @@ public class AddEventActivity extends Activity {
                 b.setOnClickListener(new Button.OnClickListener() {
                     int id = current;
                     boolean selected = false;
-
+                    //displayTimeSlotTable();
                     @Override
                     public void onClick(View v) {
                         Button obj = (Button) v;
                         if (selected) {
                             obj.setBackgroundColor(GREEN_MAT);
                             selectedTimeslots.remove(Integer.valueOf(id));
+                            Log.d("green",Integer.toString(id));
+
                         } else {
                             obj.setBackgroundColor(BLUE_MAT);
                             selectedTimeslots.add(id);
+                            Log.d("blue",Integer.toString(id));
                         }
+                        //daylist.get().setTimeSlotes(selectedTimeslots);
                         selected = !selected;
                         updateTimeDisplay();
+                        //Log.d(selectedTimeslots.get(0).intValue());
                     }
                 });
                 tr.addView(b);
@@ -315,7 +340,7 @@ public class AddEventActivity extends Activity {
         datePicker.init(year, month, day, new OnDateChangedListener() {
             @Override
             public void onDateChanged(DatePicker dp, int y, int m, int d) {
-                //clearTimeslotTable(); ENABLE TO RESET TIMESLOTS UPON DATE SWITCH
+                clearTimeslotTable();// ENABLE TO RESET TIMESLOTS UPON DATE SWITCH
             }
         });
 
@@ -349,4 +374,6 @@ public class AddEventActivity extends Activity {
         }
         return true;
     }
+
+   // public void
 }

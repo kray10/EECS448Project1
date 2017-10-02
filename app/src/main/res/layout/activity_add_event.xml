@@ -144,8 +144,8 @@
         tools:layout_constraintBottom_creator="1"
         app:layout_constraintBottom_toTopOf="@+id/saveButton"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginBottom="86dp"
-        android:layout_marginRight="31dp"
+        android:layout_marginBottom="97dp"
+        android:layout_marginRight="38dp"
         tools:ignore="HardcodedText" />
 
     <TableLayout
@@ -199,6 +199,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="16dp"
+        android:listSelector="@android:drawable/list_selector_background"
         android:headerDividersEnabled="false"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/datePicker"
@@ -245,13 +246,29 @@
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Remove ALL"
         android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="@+id/removeall"
         android:layout_marginRight="0dp"
-        app:layout_constraintRight_toRightOf="@+id/removeall"
         android:layout_marginTop="2dp"
-        app:layout_constraintTop_toBottomOf="@+id/removeall"
-        app:layout_constraintHorizontal_bias="0.574" />
+        android:text="Remove ALL Date"
+        app:layout_constraintHorizontal_bias="0.574"
+        app:layout_constraintLeft_toLeftOf="@+id/removeall"
+        app:layout_constraintRight_toRightOf="@+id/removeall"
+        app:layout_constraintTop_toBottomOf="@+id/removeall" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="8dp"
+        android:text="Clear TimeSlots"
+        app:layout_constraintBottom_toTopOf="@+id/tvKeyReserved"
+        app:layout_constraintHorizontal_bias="0.604"
+        app:layout_constraintLeft_toLeftOf="@+id/tvKeyReserved"
+        app:layout_constraintRight_toRightOf="@+id/tvKeyReserved"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
 </android.support.constraint.ConstraintLayout>
