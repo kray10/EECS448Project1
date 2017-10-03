@@ -249,14 +249,14 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="0dp"
         android:layout_marginTop="2dp"
-        android:text="Remove ALL Date"
+        android:text="Remove ALL Dates"
         app:layout_constraintHorizontal_bias="0.574"
         app:layout_constraintLeft_toLeftOf="@+id/removeall"
         app:layout_constraintRight_toRightOf="@+id/removeall"
         app:layout_constraintTop_toBottomOf="@+id/removeall" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/ClearTimeSlots"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
