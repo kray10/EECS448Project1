@@ -415,6 +415,19 @@ public class ViewActivity extends Activity {
     }
 
     /**
+     * This function copys the current time slots to all of the dates in the event
+     * @param v View of the button that was presses
+     */
+    public void copyTimeslots(View v) {
+        List<Integer> listToCopy = new ArrayList<>(selectedTimeslots.get(dateIndex));
+        for (int i = 0; i < selectedTimeslots.size(); i++) {
+            selectedTimeslots.set(i, new ArrayList<Integer>(listToCopy));
+        }
+        statusMessage.setText("Copied time slots to all event dates");
+        statusMessage.show();
+    }
+
+    /**
      * This function updates the display of the user's current selected availability.
      */
     private void updateTimeDisplay(int pos) {

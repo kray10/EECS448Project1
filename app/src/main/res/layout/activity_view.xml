@@ -41,8 +41,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tvCreator"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintTop_creator="1"
-        tools:text="PLACEHOLDER DATE"
-        android:layout_marginLeft="0dp" />
+        tools:text="PLACEHOLDER DATE" />
 
 
     <TextView
@@ -142,15 +141,16 @@
         android:id="@+id/toggleButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="48dp"
+        android:layout_marginEnd="2dp"
+        android:layout_marginRight="2dp"
+        android:onClick="toggleTimeFormat"
         android:textOff="12h"
         android:textOn="24h"
-        android:onClick="toggleTimeFormat"
-        tools:layout_constraintRight_creator="1"
-        tools:layout_constraintBottom_creator="1"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        android:layout_marginEnd="2dp"
         app:layout_constraintRight_toRightOf="@+id/linearLayout"
-        android:layout_marginBottom="27dp" />
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintRight_creator="1" />
 
     <Spinner
         android:id="@+id/tvMultiDates"
@@ -160,5 +160,16 @@
         app:layout_constraintTop_toBottomOf="@+id/tvCreator"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintTop_creator="1" />
+
+    <Button
+        android:id="@+id/copyTimeslots"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="44dp"
+        android:layout_marginRight="12dp"
+        android:onClick="copyTimeslots"
+        android:text="Apply To All Dates"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/btnSave" />
 
 </android.support.constraint.ConstraintLayout>
