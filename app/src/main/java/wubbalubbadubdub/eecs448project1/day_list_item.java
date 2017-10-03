@@ -60,9 +60,9 @@ public class day_list_item extends BaseAdapter {
 
     public String getdate(int day, int month, int year) {
         String d = Integer.toString(day);
-        String m = Integer.toString(month);
+        String m = Integer.toString(month + 1);
         String y = Integer.toString(year);
-        return (y + "/" + m + "/" + d);
+        return (m + "/" + d + "/" + y);
     }
 
     public void removeItem(int position) {

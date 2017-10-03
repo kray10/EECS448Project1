@@ -332,9 +332,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @param eventID int ID of event
      * @return Hashmap of user keypairs with DateSlot keyvalues
      */
-    public Map<String, DateSlot> getSignups(int eventID) { // TODO return list of signed up users(?) for given event
+    public Map<String, List<DateSlot>> getSignups(int eventID) { // TODO return list of signed up users(?) for given event
         SQLiteDatabase db = this.getReadableDatabase();
-        Map<String, DateSlot> userSignup = new HashMap<>();
+        Map<String, List<DateSlot>> userSignup = new HashMap<>();
 
         String[] columns = {
                 DBContract.SignupTable.COLUMN_NAME_USER,
@@ -343,7 +343,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         };
         String[] where = {Integer.toString(eventID)};
 
-        String sortOrder = DBContract.SignupTable.COLUMN_NAME_USER + " COLLATE NOCASE ASC, " + DBContract.SignupTable.COLUMN_NAME_DAY + " COLLATE NOCASE ASC";
+        String sortOrder = "DATE("  + DBContract.SignupTable.COLUMN_NAME_DAY  + ") COLLATE NOCASE DESC, " + DBContract.SignupTable.COLUMN_NAME_USER + " COLLATE NOCASE ASC" ;
 
         Cursor query = db.query(
                 DBContract.SignupTable.TABLE_NAME,
@@ -356,7 +356,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             String availablity = query.getString(query.getColumnIndexOrThrow(DBContract.SignupTable.COLUMN_NAME_AVAIL));
             String date = query.getString(query.getColumnIndexOrThrow(DBContract.SignupTable.COLUMN_NAME_DAY));
             DateSlot dateSlot = new DateSlot(availablity, date);
-            userSignup.put(query.getString(query.getColumnIndexOrThrow(DBContract.SignupTable.COLUMN_NAME_USER)), dateSlot);
+            String user = query.getString(query.getColumnIndexOrThrow(DBContract.SignupTable.COLUMN_NAME_USER));
+            List<DateSlot> list = userSignup.get(user);
+            if (list == null) {
+                List<DateSlot> dateSlotList = new ArrayList<>();
+                dateSlotList.add(dateSlot);
+                userSignup.put(user, dateSlotList);
+            }
+            else {
+                list.add(dateSlot);
+                userSignup.put(user, list);
+            }
         }
 
         return userSignup;
