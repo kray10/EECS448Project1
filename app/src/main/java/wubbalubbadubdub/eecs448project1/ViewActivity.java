@@ -151,6 +151,7 @@ public class ViewActivity extends Activity {
             displayEventSignups();
 
             ((Button)findViewById(R.id.btnSave)).setVisibility(View.GONE);
+            ((Button)findViewById(R.id.copyTimeslots)).setVisibility(View.GONE);
             ((Spinner)findViewById(R.id.tvMultiDates)).setVisibility(View.GONE);
         } else {
             // Set availability
