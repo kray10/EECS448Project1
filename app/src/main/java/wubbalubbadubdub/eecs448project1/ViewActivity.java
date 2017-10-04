@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.Space;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -253,10 +255,7 @@ public class ViewActivity extends Activity {
      * This method displays the Event timeframe and which users are signed up
      */
     private void displayEventSignups() {
-        TableLayout layout = (TableLayout) findViewById(R.id.tbLayout);
-
-        TableRow header = new TableRow(this);
-
+        LinearLayout layout = (LinearLayout) findViewById(R.id.tbLayout);
 
         // Clear table
         for (int i = 0; i < layout.getChildCount(); i++) {
@@ -265,19 +264,33 @@ public class ViewActivity extends Activity {
             layout.removeAllViews();
         }
 
+        for (int dateIndex = 0; dateIndex < eventDates.size(); dateIndex++) {
 
-        TableRow.LayoutParams cellParams = new TableRow.LayoutParams();
-        cellParams.setMargins(20, 20, 20, 20);
+            TableLayout tableLayout = new TableLayout(this);
+            TableLayout.LayoutParams tableParams = new TableLayout.LayoutParams();
+            tableParams.setMargins(0, 0, 0, 50);
+            tableLayout.setLayoutParams(tableParams);
 
-        TextView userHeader = new TextView(this);
-        userHeader.setText("User");
-        userHeader.setTextSize(15);
-        userHeader.setTypeface(null, Typeface.BOLD);
-        userHeader.setLayoutParams(cellParams);
-        header.addView(userHeader);
+            TableRow header = new TableRow(this);
 
-        for (int i = 0; i < currentTimeslots.size(); i++) {
-            for (int slot : currentTimeslots.get(i)) {
+            TableRow.LayoutParams cellParams = new TableRow.LayoutParams();
+            cellParams.setMargins(20, 20, 20, 20);
+
+            TextView userHeader = new TextView(this);
+            userHeader.setText("User");
+            userHeader.setTextSize(15);
+            userHeader.setTypeface(null, Typeface.BOLD);
+            userHeader.setLayoutParams(cellParams);
+            header.addView(userHeader);
+
+            TextView dateHeader = new TextView(this);
+            dateHeader.setText("Date");
+            dateHeader.setTextSize(15);
+            dateHeader.setTypeface(null, Typeface.BOLD);
+            dateHeader.setLayoutParams(cellParams);
+            header.addView(dateHeader);
+
+            for (int slot : currentTimeslots.get(dateIndex)) {
                 TextView slotHeader = new TextView(this);
                 slotHeader.setText(HelperMethods.toTime(slot, format));
                 slotHeader.setTextSize(15);
@@ -300,31 +313,36 @@ public class ViewActivity extends Activity {
 
                 header.addView(slotHeader);
             }
-        }
 
-        header.setBackgroundColor(Color.GRAY);
+            header.setBackgroundColor(Color.GRAY);
 
-        layout.addView(header);
-        int count = 1;
-        for (Map.Entry<String, List<DateSlot>> entry : userSignups.entrySet()) {
-            TableRow signupRow = new TableRow(this);
+            tableLayout.addView(header);
+            int count = 1;
+            for (Map.Entry<String, List<DateSlot>> entry : userSignups.entrySet()) {
+                TableRow signupRow = new TableRow(this);
 
-            TextView username = new TextView(this);
-            username.setPadding(10, 20, 10, 20);
-            username.setText(entry.getKey());
-            username.setTypeface(null, Typeface.BOLD);
-            signupRow.addView(username);
-            List<Integer> slots = HelperMethods.listifyTimeslotInts(entry.getValue().get(0).getTimeslots());
+                TextView username = new TextView(this);
+                username.setPadding(10, 20, 10, 20);
+                username.setText(entry.getKey());
+                username.setTypeface(null, Typeface.BOLD);
+                signupRow.addView(username);
 
-            for (int i = 0; i < currentTimeslots.size(); i++) {
-                for (int slot : currentTimeslots.get(i)) {
+                TextView date = new TextView(this);
+                date.setPadding(10, 20, 10, 20);
+                date.setText(eventDates.get(dateIndex));
+                date.setTypeface(null, Typeface.BOLD);
+                signupRow.addView(date);
+
+                List<Integer> slots = HelperMethods.listifyTimeslotInts(entry.getValue().get(dateIndex).getTimeslots());
+
+                for (int slot : currentTimeslots.get(dateIndex)) {
                     TextView avail = new TextView(this);
 
                     if (slots.contains(slot)) {
                         // User is signed up for this
                         avail.setText("AVAILABLE");
                         avail.setBackgroundColor(GREEN_MAT);
-                    } else if (entry.getValue().get(0).getTimeslots().isEmpty()) {
+                    } else if (entry.getValue().get(dateIndex).getTimeslots().isEmpty()) {
                         avail.setBackgroundColor(Color.RED);
                     } else {
                         avail.setBackgroundColor(Color.LTGRAY);
@@ -333,23 +351,24 @@ public class ViewActivity extends Activity {
 
                     signupRow.addView(avail);
                 }
+
+                final int currentRow = count;
+
+                signupRow.setOnClickListener(new View.OnClickListener() {
+                    int thisRow = currentRow;
+
+                    @Override
+                    public void onClick(View view) {
+                        selectedRow = thisRow;
+                        highlightSelection();
+                    }
+                });
+
+                tableLayout.addView(signupRow);
+                count++;
+
             }
-
-            final int currentRow = count;
-
-            signupRow.setOnClickListener(new View.OnClickListener() {
-                int thisRow = currentRow;
-
-                @Override
-                public void onClick(View view) {
-                    selectedRow = thisRow;
-                    highlightSelection();
-                }
-            });
-
-            layout.addView(signupRow);
-            count++;
-
+            layout.addView(tableLayout);
         }
     }
 
