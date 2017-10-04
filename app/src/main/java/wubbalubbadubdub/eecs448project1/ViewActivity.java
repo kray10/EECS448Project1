@@ -1,6 +1,8 @@
 package wubbalubbadubdub.eecs448project1;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -12,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Space;
 import android.widget.Spinner;
 import android.widget.TableLayout;
@@ -32,6 +35,7 @@ import wubbalubbadubdub.eecs448project1.data.DatabaseHelper;
 import wubbalubbadubdub.eecs448project1.data.DateSlot;
 import wubbalubbadubdub.eecs448project1.data.Event;
 import wubbalubbadubdub.eecs448project1.data.HelperMethods;
+import wubbalubbadubdub.eecs448project1.data.Task;
 
 /**
  * This activity is for viewing a certain activity.
@@ -51,6 +55,8 @@ public class ViewActivity extends Activity {
     private List<String> eventDates;
     private int dateIndex;
 
+    private AlertDialog.Builder builder;
+
     private List<List<Integer>> currentTimeslots;
     private List<List<Integer>> selectedTimeslots;
 
@@ -64,6 +70,8 @@ public class ViewActivity extends Activity {
     private boolean prevSignup;
 
     private boolean adminMode;
+
+    private ListView viewTaskList;
 
     //Color Variables - Material Design
     int BLUE_MAT = Color.rgb(2,136,209);
@@ -83,7 +91,7 @@ public class ViewActivity extends Activity {
         currentUser = intent.getStringExtra("currentUser");
 
         statusMessage = Toast.makeText(this, "", Toast.LENGTH_SHORT);
-
+        builder =  new AlertDialog.Builder(this);
 
         dbHelper = new DatabaseHelper(getApplicationContext());
 
@@ -106,11 +114,13 @@ public class ViewActivity extends Activity {
                 }
             }
         });
+        
+        setUpTaskListView();
 
         Spinner dateSpinner = (Spinner) findViewById(R.id.tvMultiDates);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+        ArrayAdapter<String> adapterDates = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, eventDates);
-        dateSpinner.setAdapter(adapter);
+        dateSpinner.setAdapter(adapterDates);
 
         adminMode = currentUser.equals(currentEvent.getCreator());
 
@@ -155,6 +165,7 @@ public class ViewActivity extends Activity {
             ((Button)findViewById(R.id.btnSave)).setVisibility(View.GONE);
             ((Button)findViewById(R.id.copyTimeslots)).setVisibility(View.GONE);
             ((Spinner)findViewById(R.id.tvMultiDates)).setVisibility(View.GONE);
+            ((ListView)findViewById(R.id.tvTaskList)).setVisibility(View.GONE);
         } else {
             // Set availability
 
@@ -484,5 +495,61 @@ public class ViewActivity extends Activity {
             updateTimeDisplay(dateIndex);
         }
         updateTimeframe(dateIndex);
+    }
+
+    /**
+     * This function setup up the adapeter and on click listenr for the ListView of Tasks
+     */
+    private void setUpTaskListView() {
+        viewTaskList = (ListView) findViewById(R.id.tvTaskList);
+        final ArrayAdapter adapterTask = new ArrayAdapter(this, android.R.layout.simple_list_item_1, currentEvent.getTasks());
+        viewTaskList.setAdapter(adapterTask);
+
+        viewTaskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                final int index = i;
+                if (currentEvent.getTasks().get(index).getTaskHelper() == null || currentEvent.getTasks().get(index).getTaskHelper().isEmpty()) {
+                    builder.setTitle("Volunteer For Task")
+                            .setMessage("Do you want to volunteer for this task: " + currentEvent.getTasks().get(i).getTaskName())
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    currentEvent.getTasks().get(index).setTaskHelper(currentUser);
+                                    viewTaskList.setAdapter(adapterTask);
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                } else if (currentEvent.getTasks().get(index).getTaskHelper().equals(currentUser)) {
+                    builder.setTitle("Remove From Task")
+                            .setMessage("Do you want to remove yourself as the volunteer for this task: " + currentEvent.getTasks().get(i).getTaskName())
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    currentEvent.getTasks().get(index).setTaskHelper("");
+                                    viewTaskList.setAdapter(adapterTask);
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                } else {
+                    statusMessage.setText("Someone has already signed up for that task");
+                    statusMessage.show();
+                }
+            }
+        });
     }
 }
