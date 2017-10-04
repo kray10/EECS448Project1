@@ -2,7 +2,6 @@ package wubbalubbadubdub.eecs448project1;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.PaintDrawable;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
@@ -62,7 +61,7 @@ public class AddEventActivity extends Activity {
      * @param savedInstanceState Unused Bundle object. Usually used if the app is killed then we can resume
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event);
         lvday = (ListView) findViewById(R.id.date_list);
@@ -88,36 +87,58 @@ public class AddEventActivity extends Activity {
         final day_list_item adapter = new day_list_item(inflater,daylist);
         lvday.setAdapter(adapter);
 
-        lvday.setClickable(true);
-        lvday.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                clearTimeslotTable();
-                selectedTimeslots = daylist.get(i).getTimeSlotes();
-                updateTimeDisplay();
-            }
 
+        lvday.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                if(!daylist.get(position).Empty()){
+                    clearTimeslotTable();
+                    int temp = daylist.get(position).getTimeSlotes().size()-1;
+                    while(selectedTimeslots.size() != daylist.get(position).getTimeSlotes().size()){
+                        selectedTimeslots.add(daylist.get(position).getTimeSlotes().get(temp));
+                        temp--;
+                        setTimeSlots(selectedTimeslots);}
+                }else{
+                        statusMessage.setText("Please long press to copy a timeslots");
+                        statusMessage.show();
+                    }
+                datePicker.updateDate(daylist.get(position).getYear(), daylist.get(position).getMonth()-1, daylist.get(position).getDay());
             }
         });
-
-        //it's a Imagebutton, used to add multi-day into a tiny list_view
+            //it's a Imagebutton, used to add multi-day into a tiny list_view
         ImageButton addDay = (ImageButton) findViewById(R.id.addDayToList);
         addDay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(checkSameDate(datePicker.getDayOfMonth(),datePicker.getYear(),datePicker.getMonth())){
-                    dayitem newdate = new dayitem(datePicker.getDayOfMonth(),datePicker.getYear(),datePicker.getMonth());
-                    newdate.setTimeSlotes(selectedTimeslots);
-                    daylist.add(newdate);
-                    day_list_item adapter = new day_list_item(getLayoutInflater(),daylist);
-                    lvday.setAdapter(adapter);
-                    if(checkDayListEmpty()){
-                     emptybar.setText("");
+                if(selectedTimeslots.size() != 0){
+                    if(checkSameDate(datePicker.getDayOfMonth(),datePicker.getYear(),datePicker.getMonth())){
+                        dayitem newdate = new dayitem(datePicker.getDayOfMonth(),datePicker.getYear(),datePicker.getMonth());
+                        List<Integer> copy = new ArrayList<Integer>();
+                        int temp = selectedTimeslots.size()-1;
+                        while(copy.size() != selectedTimeslots.size()){
+                            copy.add(selectedTimeslots.get(temp));
+                            temp--;
+                        }
+                        newdate.setTimeSlotes(copy);
+                        daylist.add(newdate);
+                        day_list_item adapter = new day_list_item(getLayoutInflater(),daylist);
+                        lvday.setAdapter(adapter);
+                        if(checkDayListEmpty()){
+                        emptybar.setText("");}
                     }
-            }}
+                }else{
+                    statusMessage.setText("You add a day without timeslots");
+                    statusMessage.show();
+                    if(checkSameDate(datePicker.getDayOfMonth(),datePicker.getYear(),datePicker.getMonth())){
+                        dayitem newdate = new dayitem(datePicker.getDayOfMonth(),datePicker.getYear(),datePicker.getMonth());
+                        daylist.add(newdate);
+                        day_list_item adapter = new day_list_item(getLayoutInflater(),daylist);
+                        lvday.setAdapter(adapter);
+                        if(checkDayListEmpty()){
+                            emptybar.setText("");}
+                        }
+                }
+            }
         });
         ImageButton cleardate = (ImageButton) findViewById(R.id.removeall);
         cleardate.setOnClickListener(new View.OnClickListener() {
@@ -129,6 +150,8 @@ public class AddEventActivity extends Activity {
                 day_list_item adapter = new day_list_item(getLayoutInflater(),daylist);
                 lvday.setAdapter(adapter);
                 emptybar.setText("Multi-Day List Empty Now");
+                clearTimeslotTable();
+                setTimeSlots(selectedTimeslots);
             }
         });
         Button clearTimeSlot = (Button) findViewById(R.id.ClearTimeSlots);
@@ -164,27 +187,14 @@ public class AddEventActivity extends Activity {
                 b.setBackgroundColor(GREEN_MAT);
                 b.setOnClickListener(new Button.OnClickListener() {
                     int id = current;
-                    boolean selected = false;
                     //displayTimeSlotTable();
                     @Override
                     public void onClick(View v) {
                         Button obj = (Button) v;
-
-
-                        Log.d("what?",Integer.toString(GREEN_MAT));
-                        if (true) {
-                            obj.setBackgroundColor(GREEN_MAT);
-                            selectedTimeslots.remove(Integer.valueOf(id));
-                            Log.d("green",Integer.toString(id));
-
-                        } else {
-                            obj.setBackgroundColor(BLUE_MAT);
-                            selectedTimeslots.add(id);
-                            Log.d("blue",Integer.toString(id));
-                        }
-                        //daylist.get().setTimeSlotes(selectedTimeslots);
+                        obj.setBackgroundColor(BLUE_MAT);
+                        if(isInsideTimeSlots(id)){
+                        selectedTimeslots.add(id);}
                         updateTimeDisplay();
-                        //Log.d(selectedTimeslots.get(0).intValue());
                     }
                 });
                 tr.addView(b);
@@ -202,8 +212,8 @@ public class AddEventActivity extends Activity {
      * unnecessary but keeping it in case we want it for anything else, e.g. a 'clear times' button
      */
     private void clearTimeslotTable() {
-
-        selectedTimeslots.clear();
+        while(selectedTimeslots.size() !=0 ){
+        selectedTimeslots.remove(selectedTimeslots.size()-1);}
 
         TableLayout tableLayout = (TableLayout) findViewById(R.id.tbLayout);
         int count = 0;
@@ -355,6 +365,9 @@ public class AddEventActivity extends Activity {
             @Override
             public void onDateChanged(DatePicker dp, int y, int m, int d) {
                 clearTimeslotTable();// ENABLE TO RESET TIMESLOTS UPON DATE SWITCH
+                if(!checkSameDate(d,y,m)){
+                   setTimeSlots(selectedTimeslots);
+                }
             }
         });
 
@@ -379,6 +392,11 @@ public class AddEventActivity extends Activity {
     public boolean checkSameDate(int day, int year ,int month){
         for(int i = 0; i < daylist.size(); i++) {
             if((daylist.get(i).getDay() == day)&&(daylist.get(i).getMonth() == month+1)&&(daylist.get(i).getYear() == year)){
+                if(!daylist.get(i).Empty()){
+                int temp = daylist.get(i).getTimeSlotes().size()-1;
+                while(selectedTimeslots.size() != daylist.get(i).getTimeSlotes().size()){
+                selectedTimeslots.add(daylist.get(i).getTimeSlotes().get(temp));
+                temp--;}}
                 statusMessage.setText("This day is already in your List");
                 statusMessage.show();
                 return false;
@@ -396,5 +414,30 @@ public class AddEventActivity extends Activity {
         }
     }
 
-   // public void
+    public void setTimeSlots(List<Integer> timeSlots){
+        TableLayout tableLayout = (TableLayout) findViewById(R.id.tbLayout);
+        int count = 0;
+        for (int i = 0; i < 4; i++) {
+            TableRow row = (TableRow)tableLayout.getChildAt(i);
+            for (int j = 0; j < 12; j++) {
+                Button b = (Button) row.getChildAt(j);
+                b.setBackgroundColor(GREEN_MAT);
+                if(!isInsideTimeSlots(j+i*12)){
+                b.setBackgroundColor(BLUE_MAT);}
+                count++;
+            }
+        }
+        updateTimeDisplay();
+    }
+
+    public boolean isInsideTimeSlots(int index){
+        int count = selectedTimeslots.size();
+        while(count > 0){
+            if(index == selectedTimeslots.get(count-1).intValue()){
+                return false;
+            };
+            count--;
+        }
+        return true;
+    }
 }
