@@ -1,3 +1,27 @@
+#Team J-Hawk's Schedule Planner v2
+
+##EECS448 Project 2
+
+###TODOLIST
+
+#### DatabaseHelper
+- ~~Add SQL functions for supporting multiple days and timeslots~~ **DONE!**
+- ~~Add SQL functions and table for task signups~~ **DONE!**
+
+#### ViewActivity
+- ~~Add ablity to select between different dates for selecting timeslots~~ **DONE!**
+- ~~Add ability for user to sign up for tasks~~ **DONE!**
+
+#### AddEventActivity
+- ~~Add ability to select multiple days and different timeslots for each day~~ **DONE!**
+- ~~Add ability to copy timeslots from one date to another~~ **DONE!**
+- Add ability to add tasks for an event
+
+#### Event Creator View
+- ~~Display all timeslots for all dates for all user~~ **DONE!**
+- ~~Display all tasks and who is assigned to them~~ **DONE!**
+
+
 # Team Wubba Lubba Dub Dub's Schedule Planner
 
 ## EECS448 Project 1
