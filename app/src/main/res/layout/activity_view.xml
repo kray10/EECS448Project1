@@ -35,6 +35,14 @@
         android:id="@+id/tvDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:textSize="20sp"
+        app:layout_constraintLeft_toLeftOf="@+id/tvCreator"
+        app:layout_constraintTop_toBottomOf="@+id/tvCreator"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintTop_creator="1"
+        tools:text="PLACEHOLDER DATE" />
+
         android:textSize="20sp"
         tools:text="PLACEHOLDER DATE"
         tools:layout_constraintTop_creator="1"
@@ -51,6 +59,8 @@
         android:textSize="15sp"
         tools:text="PLACEHOLDER TIMEFRAME"
         tools:layout_constraintTop_creator="1"
+        android:layout_marginTop="20dp"
+
         android:layout_marginTop="10dp"
         app:layout_constraintTop_toBottomOf="@+id/tvDate"
         tools:layout_constraintLeft_creator="1"
@@ -66,12 +76,23 @@
         android:layout_marginStart="37dp"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:layout_constraintLeft_creator="1"
+        android:layout_marginBottom="5dp"
+
         android:layout_marginBottom="44dp"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginLeft="37dp" />
 
     <Button
         android:id="@+id/btnSave"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="54dp"
+        android:onClick="saveSelection"
+        android:text="Save"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="37dp"
+        android:layout_marginRight="54dp"
+        app:layout_constraintRight_toRightOf="@+id/linearLayout" />
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="saveSelection"
@@ -90,6 +111,8 @@
         android:text="Select a user's row to view a more readable timeframe OR Select a timeslot"
         android:textSize="15sp"
         android:textStyle="bold"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintLeft_toLeftOf="@+id/linearLayout"
         tools:layout_constraintBottom_creator="1"
         tools:layout_constraintLeft_creator="1"
         app:layout_constraintLeft_toLeftOf="@+id/linearLayout"
@@ -98,6 +121,24 @@
         app:layout_constraintTop_toBottomOf="@+id/tvEventTimeframe" />
 
     <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="1101dp"
+
+        android:layout_height="210dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:fadeScrollbars="false"
+        android:orientation="vertical"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="@+id/tvSelectedTimes"
+        app:layout_constraintRight_toRightOf="parent"
+
+        app:layout_constraintTop_toBottomOf="@+id/tvSelectedUser"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1"
+        android:layout_marginEnd="8dp">
+
         android:layout_width="1101dp"
         android:layout_height="346dp"
         android:orientation="vertical"
@@ -118,6 +159,8 @@
             android:id="@+id/layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="5dp"
+            android:fadeScrollbars="false"
             android:fadeScrollbars="false"
             android:layout_marginTop="5dip"
             android:fillViewport="true"
@@ -134,6 +177,7 @@
                 <TableLayout
                     android:id="@+id/tbLayout"
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
                     android:layout_height="wrap_content"/>
             </HorizontalScrollView>
         </ScrollView>
@@ -143,6 +187,88 @@
         android:id="@+id/toggleButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="48dp"
+        android:layout_marginEnd="2dp"
+        android:layout_marginRight="2dp"
+        android:onClick="toggleTimeFormat"
+        android:textOff="12h"
+        android:textOn="24h"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+
+        app:layout_constraintRight_toRightOf="@+id/linearLayout" />
+
+    <ListView
+        android:id="@+id/taskLayout"
+        android:layout_width="811dp"
+        android:layout_height="146dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/tvSelectedTimes"
+        app:layout_constraintHorizontal_bias="0.052"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        app:layout_constraintVertical_bias="0.879"
+        tools:layout_editor_absoluteY="488dp" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Task"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        android:layout_marginBottom="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/taskLayout"
+        android:layout_marginLeft="37dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintVertical_bias="0.725" />
+
+    <Spinner
+        android:id="@+id/tvMultiDates"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="@+id/tvCreator"
+        app:layout_constraintTop_toBottomOf="@+id/tvCreator"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintTop_creator="1" />
+
+    <Button
+        android:id="@+id/copyTimeslots"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_marginBottom="37dp"
+        android:layout_marginRight="6dp"
+        android:onClick="copyTimeslots"
+        android:text="Apply To All Dates"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/btnSave"
+        android:layout_marginEnd="6dp" />
+
+    <TextView
+        android:id="@+id/taskLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="7dp"
+        android:layout_marginLeft="0dp"
+        android:text="Tasks:"
+        app:layout_constraintBottom_toTopOf="@+id/tvTaskList"
+        app:layout_constraintLeft_toLeftOf="@+id/tvTaskList" />
+
+    <ListView
+        android:id="@+id/tvTaskList"
+        android:layout_width="317dp"
+        android:layout_height="124dp"
+        android:layout_marginBottom="34dp"
+        app:layout_constraintBottom_toTopOf="@+id/tvSelectedTimes"
+        android:layout_marginLeft="367dp"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
         android:textOff="12h"
         android:textOn="24h"
         android:onClick="toggleTimeFormat"
