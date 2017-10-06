@@ -1,3 +1,4 @@
+
 #Team J-Hawk's Schedule Planner v2
 
 ##EECS448 Project 2
@@ -20,6 +21,7 @@
 #### Event Creator View
 - ~~Display all timeslots for all dates for all user~~ **DONE!**
 - ~~Display all tasks and who is assigned to them~~ **DONE!**
+
 
 
 # Team Wubba Lubba Dub Dub's Schedule Planner

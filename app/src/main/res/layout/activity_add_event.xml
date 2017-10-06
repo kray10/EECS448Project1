@@ -9,6 +9,12 @@
     tools:layout_editor_absoluteX="0dp"
     tools:layout_editor_absoluteY="89dp">
 
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="wubbalubbadubdub.eecs448project1.AddEventActivity"
+    tools:layout_editor_absoluteY="89dp"
+    tools:layout_editor_absoluteX="0dp">
+
     <TextView
         android:id="@+id/lvemptybar"
         android:layout_width="wrap_content"
@@ -43,6 +49,14 @@
         app:layout_constraintHorizontal_bias="0.055" />
 
  
+        android:text="Add event"
+        android:textSize="21dp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="28dp"
+        tools:ignore="HardcodedText,SpUsage"
+        app:layout_constraintLeft_toRightOf="@+id/date_list"
+        android:layout_marginLeft="28dp" />
 
     <TextView
         android:id="@+id/tvEventName"
@@ -62,6 +76,17 @@
         app:layout_constraintTop_toBottomOf="@+id/tvWelcome" />
 
 
+
+
+        android:layout_marginStart="28dp"
+        android:text="Event Name:"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/date_list"
+        android:layout_marginLeft="28dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/tvWelcome" />
 
     <EditText
         android:id="@+id/textName"
@@ -83,6 +108,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tvWelcome" />
 
 
+
     <TextView
         android:id="@+id/tvSelectEvent"
         android:layout_width="wrap_content"
@@ -96,6 +122,15 @@
         tools:ignore="HardcodedText,RtlHardcoded"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintTop_creator="1" />
+        android:text="Select Event Time Slots: Each Timeslot is a 30 minute period"
+        android:layout_marginStart="16dp"
+        tools:layout_constraintTop_creator="1"
+        android:layout_marginTop="17dp"
+        app:layout_constraintTop_toBottomOf="@+id/datePicker"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginLeft="16dp"
+        tools:ignore="HardcodedText,RtlHardcoded" />
 
     <Button
         android:id="@+id/saveButton"
@@ -111,12 +146,23 @@
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintRight_creator="1" />
 
+        android:text="Save"
+        android:onClick="onSaveButtonClick"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintBottom_creator="1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="@+id/tbTimeFormat"
+        tools:layout_constraintLeft_creator="1"
+        android:layout_marginBottom="18dp"
+        app:layout_constraintLeft_toLeftOf="@+id/tbTimeFormat" />
+
     <TextView
         android:id="@+id/tvSelectedTimes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="96dp"
         android:layout_marginLeft="16dp"
+
         android:layout_marginStart="16dp"
         android:text="Selected Times: NONE"
         android:textSize="16sp"
@@ -124,6 +170,9 @@
         app:layout_constraintLeft_toLeftOf="parent"
         tools:layout_constraintBottom_creator="1"
         tools:layout_constraintLeft_creator="1" />
+
+        tools:layout_constraintLeft_creator="1"
+        android:layout_marginLeft="16dp" />
 
 
     <TextView
@@ -138,6 +187,14 @@
         app:layout_constraintTop_toBottomOf="@+id/tvKeyReserved"
         tools:ignore="HardcodedText"
         tools:layout_constraintTop_creator="1" />
+        android:background="#8bc34a"
+        android:padding="5dp"
+        android:text="Available"
+        tools:layout_constraintTop_creator="1"
+        android:layout_marginTop="7dp"
+        app:layout_constraintTop_toBottomOf="@+id/tvKeyReserved"
+        app:layout_constraintLeft_toLeftOf="@+id/tvKeyReserved"
+        tools:ignore="HardcodedText" />
 
     <ToggleButton
         android:id="@+id/tbTimeFormat"
@@ -149,14 +206,20 @@
 
         android:onClick="toggleFormat"
         android:text="Time Format"
+  
+        android:text="Time Format"
         android:textOff="12h"
         android:textOn="24h"
+        android:onClick="toggleFormat"
+        android:layout_marginEnd="31dp"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintBottom_creator="1"
         app:layout_constraintBottom_toTopOf="@+id/saveButton"
         app:layout_constraintRight_toRightOf="parent"
-        tools:ignore="HardcodedText"
-        tools:layout_constraintBottom_creator="1"
-        tools:layout_constraintRight_creator="1" />
-
+        android:layout_marginBottom="86dp"
+        android:layout_marginRight="31dp"
+        tools:ignore="HardcodedText" />
+  
     <TableLayout
         android:id="@+id/tbLayout"
         android:layout_width="0dp"
@@ -173,6 +236,18 @@
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintTop_creator="1" />
 
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintBottom_creator="1"
+        app:layout_constraintBottom_toBottomOf="@+id/tvSelectedTimes"
+        android:layout_marginTop="43dp"
+        tools:layout_constraintLeft_creator="1"
+        android:layout_marginBottom="42dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tvSelectEvent"
+        android:layout_marginLeft="16dp"
+        app:layout_constraintVertical_bias="0.0"
+        android:layout_marginStart="16dp" />
+
     <TextView
         android:id="@+id/tvKeyReserved"
         android:layout_width="wrap_content"
@@ -188,6 +263,17 @@
         tools:layout_constraintBottom_creator="1"
         tools:layout_constraintRight_creator="1" />
 
+        android:background="#0288d1"
+        android:padding="5dp"
+        android:text="Reserved"
+        android:layout_marginEnd="50dp"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintBottom_creator="1"
+        app:layout_constraintBottom_toTopOf="@+id/tbTimeFormat"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginBottom="59dp"
+        android:layout_marginRight="50dp" />
+
     <DatePicker
         android:id="@+id/datePicker"
         android:layout_width="375dp"
@@ -199,6 +285,13 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintTop_creator="1" />
+        android:layout_marginStart="16dp"
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginLeft="16dp" />
+
 
     <ImageButton
         android:id="@+id/addDayToList"
@@ -228,7 +321,7 @@
         app:layout_constraintRight_toLeftOf="@+id/date_list"
         app:layout_constraintTop_toBottomOf="@+id/addDayToList"
 
-
+       
     <TextView
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
@@ -335,5 +428,75 @@
         android:layout_marginRight="8dp"
         app:layout_constraintRight_toRightOf="parent" />
 
+        android:text="Remove ALL"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="@+id/removeall"
+        app:layout_constraintRight_toRightOf="@+id/removeall"
+        android:layout_marginTop="2dp"
+        app:layout_constraintTop_toBottomOf="@+id/removeall"
+        app:layout_constraintHorizontal_bias="0.574"
+        android:layout_marginStart="8dp" />
+
+    <Button
+        android:id="@+id/addTaskButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="1dp"
+        android:text="Add"
+        app:layout_constraintLeft_toLeftOf="@+id/taskName"
+        app:layout_constraintTop_toBottomOf="@+id/taskName" />
+
+    <TextView
+        android:id="@+id/tasklabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Task"
+        app:layout_constraintRight_toLeftOf="@+id/taskList"
+        android:layout_marginRight="8dp"
+        app:layout_constraintLeft_toRightOf="@+id/date_list"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintHorizontal_bias="0.117"
+        android:layout_marginTop="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/textName" />
+
+    <EditText
+        android:id="@+id/taskName"
+        android:layout_width="257dp"
+        android:layout_height="44dp"
+        android:ems="10"
+        android:hint="ADD Task Here"
+        android:inputType="text"
+        app:layout_constraintRight_toLeftOf="@+id/taskList"
+        android:layout_marginRight="-10dp"
+        android:layout_marginTop="-80dp"
+        app:layout_constraintTop_toBottomOf="@+id/tasklabel" />
+
+    <ListView
+        android:id="@+id/taskList"
+        android:layout_width="192dp"
+        android:layout_height="265dp"
+        android:visibility="visible"
+        tools:layout_editor_absoluteY="16dp"
+        android:layout_marginRight="39dp"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <ListView
+        android:id="@+id/date_list"
+        android:layout_width="314dp"
+        android:layout_height="273dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:headerDividersEnabled="false"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/datePicker"
+        app:layout_constraintHorizontal_bias="0.84"
+        app:layout_constraintLeft_toRightOf="@+id/datePicker"
+        app:layout_constraintRight_toLeftOf="@+id/textName"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
 </android.support.constraint.ConstraintLayout>
