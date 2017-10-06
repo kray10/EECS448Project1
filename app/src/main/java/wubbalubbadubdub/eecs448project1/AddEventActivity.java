@@ -432,8 +432,10 @@ public class AddEventActivity extends Activity {
 
             //Add event and automatically sign creator up for duration of event
             int eventID = dbHelper.addEvent(e);
-            for (int i = 0; i < dates.size(); i ++) {
-                dbHelper.addSignup(eventID, currentUser, selectedTimeslots, dates.get(i));
+            for (int i = 0; i < e.getDateSlots().size(); i ++) {
+                dbHelper.addSignup(eventID, currentUser,
+                        HelperMethods.listifyTimeslotInts(e.getDateSlots().get(i).getTimeslots()),
+                        e.getDateSlots().get(i).getDate());
             }
 
             statusMessage.setText("Your event has been created.");

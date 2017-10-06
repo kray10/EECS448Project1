@@ -74,7 +74,8 @@
         app:layout_constraintTop_toBottomOf="@+id/tvWelcome"
         tools:ignore="LabelFor"
         tools:layout_constraintLeft_creator="1"
-        tools:layout_constraintTop_creator="1" />
+        tools:layout_constraintTop_creator="1"
+        android:layout_marginLeft="0dp"/>
 
     <TextView
         android:id="@+id/tvSelectEvent"
