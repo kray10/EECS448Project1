@@ -1,5 +1,7 @@
 package wubbalubbadubdub.eecs448project1;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,29 +9,36 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import wubbalubbadubdub.eecs448project1.R;
+import wubbalubbadubdub.eecs448project1.data.Task;
+
 /**
- * Created by simonyang on 2017/9/29.
+ * Created by martin on 10/5/2017.
  */
 
-public class day_list_item extends BaseAdapter {
-    private List<dayitem> mitem;
+class Task_adapter extends BaseAdapter {
+
+    List<Task> list;
     private LayoutInflater mInflater;
 
-    public day_list_item(LayoutInflater inflater, List<dayitem> items) {
-        mitem = items;
+
+
+    public Task_adapter( LayoutInflater inflater, List<Task> items) {
+        list=items;
         mInflater = inflater;
     }
 
     @Override
     public int getCount() {
-        return mitem.size();
+        return list.size();
     }
 
     @Override
     public Object getItem(int i) {
-        return mitem.get(i);
+        return list.get(i);
     }
 
     @Override
@@ -38,13 +47,12 @@ public class day_list_item extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
-
-        View viewInfromation = mInflater.inflate(R.layout.day_list_item, null);
-        dayitem Item = mitem.get(i);
-        TextView date = viewInfromation.findViewById(R.id.daytext);
+    public View getView(int position, View convertView, ViewGroup parent) {
+        View viewInfromation = mInflater.inflate(R.layout.task_adapter, null);
+        Task Item = list.get(position);
+        TextView txt = viewInfromation.findViewById(R.id.tasktext);
         ImageButton deletedate = viewInfromation.findViewById(R.id.deleteButton);
-        deletedate.setTag(i);
+        deletedate.setTag(position);
         deletedate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -52,22 +60,20 @@ public class day_list_item extends BaseAdapter {
                 removeItem(position);
                 notifyDataSetChanged();
             }
-        });
-
-        date.setText(getdate(Item.getDay(), Item.getMonth(), Item.getYear()));
+            });
+            txt.setText(getname(position));
         return viewInfromation;
     }
 
-    public String getdate(int day, int month, int year) {
-        String d = Integer.toString(day);
-        String m = Integer.toString(month + 1);
-        String y = Integer.toString(year);
-        return (m + "/" + d + "/" + y);
-    }
-
     public void removeItem(int position) {
-        mitem.remove(position);
+        list.remove(position);
         notifyDataSetChanged(); //refresh your listview based on new data
-
     }
+
+    public String getname(int position) {
+       String name =list.get(position).getTaskName();
+        return name;
+    }
+
+
 }
