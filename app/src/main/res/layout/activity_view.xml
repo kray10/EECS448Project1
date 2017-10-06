@@ -97,7 +97,7 @@
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="1101dp"
-        android:layout_height="wrap_content"
+        android:layout_height="210dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:fadeScrollbars="false"
@@ -114,7 +114,7 @@
         <ScrollView
             android:id="@+id/layout"
             android:layout_width="match_parent"
-            android:layout_height="159dp"
+            android:layout_height="match_parent"
             android:layout_marginTop="5dp"
             android:fadeScrollbars="false"
             android:fillViewport="true"
@@ -151,8 +151,8 @@
 
     <ListView
         android:id="@+id/taskLayout"
-        android:layout_width="853dp"
-        android:layout_height="206dp"
+        android:layout_width="811dp"
+        android:layout_height="146dp"
         android:layout_marginBottom="0dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="8dp"
@@ -162,7 +162,8 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout"
-        app:layout_constraintVertical_bias="0.879" />
+        app:layout_constraintVertical_bias="0.879"
+        tools:layout_editor_absoluteY="488dp" />
 
     <TextView
         android:id="@+id/textView2"
@@ -177,7 +178,7 @@
         app:layout_constraintBottom_toTopOf="@+id/taskLayout"
         android:layout_marginLeft="37dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.725" />
 
     <Spinner
         android:id="@+id/tvMultiDates"

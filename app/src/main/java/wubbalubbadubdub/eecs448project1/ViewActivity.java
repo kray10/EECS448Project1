@@ -356,7 +356,6 @@ public class ViewActivity extends Activity {
                 signupRow.addView(date);
 
                 List<Integer> slots = HelperMethods.listifyTimeslotInts(entry.getValue().get(dateIndex).getTimeslots());
-
                 for (int slot : currentTimeslots.get(dateIndex)) {
                     TextView avail = new TextView(this);
 
@@ -364,9 +363,7 @@ public class ViewActivity extends Activity {
                         // User is signed up for this
                         avail.setText("AVAILABLE");
                         avail.setBackgroundColor(GREEN_MAT);
-                    } else if (entry.getValue().get(dateIndex).getTimeslots().isEmpty()) {
-                        avail.setBackgroundColor(Color.RED);
-                    } else {
+                    }  else {
                         avail.setBackgroundColor(Color.LTGRAY);
                     }
                     avail.setPadding(20, 20, 20, 20);
