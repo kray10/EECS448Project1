@@ -8,15 +8,18 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Space;
 import android.widget.Spinner;
+import android.widget.ImageButton;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -114,7 +117,7 @@ public class ViewActivity extends Activity {
                 }
             }
         });
-        
+
         setUpTaskListView();
 
         Spinner dateSpinner = (Spinner) findViewById(R.id.tvMultiDates);
@@ -161,14 +164,14 @@ public class ViewActivity extends Activity {
         if (adminMode) {
             // View event status
             displayEventSignups();
-
+            populateTask();
             ((Button)findViewById(R.id.btnSave)).setVisibility(View.GONE);
             ((Button)findViewById(R.id.copyTimeslots)).setVisibility(View.GONE);
             ((Spinner)findViewById(R.id.tvMultiDates)).setVisibility(View.GONE);
             ((ListView)findViewById(R.id.tvTaskList)).setVisibility(View.GONE);
         } else {
             // Set availability
-
+            ((TextView)findViewById(R.id.textView2)).setVisibility(View.GONE);
             ((TextView)findViewById(R.id.tvSelectedUser)).setVisibility(View.GONE);
             ((TextView)findViewById(R.id.tvDate)).setVisibility(View.GONE);
             updateTimeframe(0);
@@ -189,6 +192,14 @@ public class ViewActivity extends Activity {
             });
         }
 
+    }
+
+    /*this method is to populate tasks list
+    */
+    private void populateTask() {
+    ListView lvtask = (ListView) findViewById(R.id.taskLayout);
+        taskAdapter adapter = new taskAdapter(getLayoutInflater(),dbHelper.getEvent(currentID).getTasks());
+    lvtask.setAdapter(adapter);
     }
 
     /**
@@ -551,5 +562,43 @@ public class ViewActivity extends Activity {
                 }
             }
         });
+    }
+
+
+}
+class taskAdapter extends BaseAdapter {
+    private List<Task> mitem;
+    private LayoutInflater mInflater;
+
+    public taskAdapter(LayoutInflater inflater, List<Task> items) {
+        mitem = items;
+        mInflater = inflater;
+    }
+
+    @Override
+    public int getCount() {
+        return mitem.size();
+    }
+
+    @Override
+    public Object getItem(int i) {
+        return mitem.get(i);
+    }
+
+    @Override
+    public long getItemId(int i) {
+        return i;
+    }
+
+    @Override
+    public View getView(int i, View view, ViewGroup viewGroup) {
+
+        View viewInfromation = mInflater.inflate(R.layout.day_list_item, null);
+        Task Item = mitem.get(i);
+        TextView taskName = viewInfromation.findViewById(R.id.task);
+        TextView taskHelper = viewInfromation.findViewById(R.id.helper);
+        taskName.setText(Item.getTaskName());
+        taskHelper.setText(Item.getTaskHelper());
+        return viewInfromation;
     }
 }
