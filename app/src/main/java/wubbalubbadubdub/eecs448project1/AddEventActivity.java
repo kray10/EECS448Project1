@@ -166,6 +166,7 @@ public class AddEventActivity extends Activity {
         lvday.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                currentListPosition = position;
                 if(!daylist.get(position).Empty()){
                     clearTimeslotTable();
                     int temp = daylist.get(position).getTimeSlotes().size()-1;
@@ -185,24 +186,26 @@ public class AddEventActivity extends Activity {
         addDay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(selectedTimeslots.size() != 0){
-                    if(checkSameDate(datePicker.getDayOfMonth(),datePicker.getYear(),datePicker.getMonth())){
-                        dayitem newdate = new dayitem(datePicker.getDayOfMonth(),datePicker.getYear(),datePicker.getMonth());
+                if (selectedTimeslots.size() != 0) {
+                    if (checkSameDate(datePicker.getDayOfMonth(), datePicker.getYear(), datePicker.getMonth())) {
+                        dayitem newdate = new dayitem(datePicker.getDayOfMonth(), datePicker.getYear(), datePicker.getMonth());
                         List<Integer> copy = new ArrayList<Integer>();
-                        int temp = selectedTimeslots.size()-1;
-                        while(copy.size() != selectedTimeslots.size()){
+                        int temp = selectedTimeslots.size() - 1;
+                        while (copy.size() != selectedTimeslots.size()) {
                             copy.add(selectedTimeslots.get(temp));
                             temp--;
                         }
                         newdate.setTimeSlotes(copy);
                         daylist.add(newdate);
-                        day_list_item adapter = new day_list_item(getLayoutInflater(),daylist);
+                        day_list_item adapter = new day_list_item(getLayoutInflater(), daylist);
                         lvday.setAdapter(adapter);
-                        day_list_item cop_adapter = new day_list_item(inflater_copylist ,daylist);
-                        if(checkDayListEmpty()){
-                        emptybar.setText("");}
+                        day_list_item cop_adapter = new day_list_item(inflater_copylist, daylist);
+                        if (checkDayListEmpty()) {
+                            emptybar.setText("");
+                        }
+                        currentListPosition = daylist.size() -1;
                     }
-                }else{
+                } else{
                     statusMessage.setText("You add a day without timeslots");
                     statusMessage.show();
                     if(checkSameDate(datePicker.getDayOfMonth(),datePicker.getYear(),datePicker.getMonth())){
@@ -211,8 +214,10 @@ public class AddEventActivity extends Activity {
                         day_list_item adapter = new day_list_item(getLayoutInflater(),daylist);
                         lvday.setAdapter(adapter);
                         if(checkDayListEmpty()){
-                            emptybar.setText("");}
+                            emptybar.setText("");
                         }
+                        currentListPosition = daylist.size() -1;
+                    }
                 }
             }
         });
@@ -361,6 +366,13 @@ public class AddEventActivity extends Activity {
             return false;
         }
 
+        for (int i = 0; i < e.getDateSlots().size(); i++) {
+            if (e.getDateSlots().get(i).getTimeslots().equals("")) {
+                statusMessage.setText("ERROR: Please choose times for " + e.getDateSlots().get(i).getDate() + "!");
+                return false;
+            }
+        }
+
         //Check if user is already signed up for any conflicting events
         /*pseudo: if intersection of (currentuser.signups.timeslots) list with (e.timeslots) list
          * is nonempty, -> conflict found, return false*/
@@ -399,9 +411,13 @@ public class AddEventActivity extends Activity {
         String name = nameText.getText().toString();
 
         //Stringify timeslot list in int format for storage in db
-
-        for (int i = 0; i < dates.size(); i++) {
-            DateSlot dateSlot = new DateSlot(HelperMethods.stringifyTimeslotInts(daylist.get(i).getTimeSlotes()), dates.get(i));
+        for (int i = 0; i < daylist.size(); i++) {
+            DateSlot dateSlot;
+            if (!daylist.get(i).Empty()) {
+                dateSlot = new DateSlot(HelperMethods.stringifyTimeslotInts(daylist.get(i).getTimeSlotes()), dates.get(i));
+            } else {
+                dateSlot = new DateSlot("", dates.get(i));
+            }
             dateSlotList.add(dateSlot);
         }
 
@@ -515,5 +531,14 @@ public class AddEventActivity extends Activity {
             count--;
         }
         return true;
+    }
+
+    public void saveTimeSlots(View v) {
+        if (!selectedTimeslots.isEmpty()) {
+            daylist.get(currentListPosition).setTimeSlotes(new ArrayList<Integer>(selectedTimeslots));
+            statusMessage.setText("Timeslots saved for " + daylist.get(currentListPosition).getMonth() + "/" +  daylist.get(currentListPosition).getDay() +
+                    "/" + daylist.get(currentListPosition).getYear());
+            statusMessage.show();
+        }
     }
 }
