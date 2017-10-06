@@ -30,5 +30,9 @@ public class Task {
     public String getTaskName() {
         return taskName;
     }
+
+    public String toString() {
+        return taskName + ": " + taskHelper;
+    }
 }
 
