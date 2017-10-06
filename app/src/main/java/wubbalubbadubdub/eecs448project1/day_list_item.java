@@ -75,10 +75,10 @@ public class day_list_item extends BaseAdapter {
         String y = Integer.toString(year);
         return ( m + "/" + d + "/" +y);
     }
-
-    public void removeItem(int position) {
-        mitem.remove(position);
-        notifyDataSetChanged(); //refresh your listview based on new data
-
-    }
+//
+//    public void removeItem(int position) {
+//        mitem.remove(position);
+//        notifyDataSetChanged(); //refresh your listview based on new data
+//
+//    }
 }

@@ -1,18 +1,25 @@
 package wubbalubbadubdub.eecs448project1;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -40,9 +47,12 @@ import wubbalubbadubdub.eecs448project1.data.Task;
  * This Class allows the user to create an event and select timeslots for the event created
  */
 public class AddEventActivity extends Activity {
-    private List<DateSlot> DateSlotOfEvent;
+    private int currentListPosition;
     private List<dayitem> daylist;//listview item information, used to hold all date item
     private ListView lvday; //listview, used to show all item information
+
+    private ListView copy_lsitview;
+    private Context mContext;
 
     private DatabaseHelper dbHelper;
     private Toast statusMessage;
@@ -64,9 +74,14 @@ public class AddEventActivity extends Activity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event);
+
+        mContext = getApplicationContext();
+        final LayoutInflater inflater_copylist = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
+        final View copy_lsitview_inflater = inflater_copylist.inflate(R.layout.date_copy_list,null);
         lvday = (ListView) findViewById(R.id.date_list);
+        copy_lsitview = (ListView) copy_lsitview_inflater.findViewById(R.id.lvcopy);
+
         daylist = new ArrayList<>();
-        DateSlotOfEvent = new ArrayList<>();
         final DatePicker datePicker = (DatePicker) findViewById(R.id.datePicker);
         final TextView emptybar = (TextView) findViewById(R.id.lvemptybar);
 
@@ -82,12 +97,72 @@ public class AddEventActivity extends Activity {
 
         createTimeslotTable();
         setupDatePicker(datePicker);
+
         LayoutInflater inflater = getLayoutInflater();
 
         final day_list_item adapter = new day_list_item(inflater,daylist);
         lvday.setAdapter(adapter);
 
-
+        lvday.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                currentListPosition = position;
+                ConstraintLayout mLayout = (ConstraintLayout) findViewById(R.id.cl);
+                        // Initialize a new instance of LayoutInflater service
+                LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
+                        // Inflate the custom layout/view
+                View customView = inflater.inflate(R.layout.date_copy_list,null);
+                final PopupWindow mPopupWindow = new PopupWindow(
+                        customView,
+                        ConstraintLayout.LayoutParams.WRAP_CONTENT,
+                        ConstraintLayout.LayoutParams.WRAP_CONTENT
+                );
+                        if(Build.VERSION.SDK_INT>=21){
+                            mPopupWindow.setElevation(5.0f);
+                        }
+                mPopupWindow.setBackgroundDrawable(new BitmapDrawable());
+                mPopupWindow.setFocusable(true);
+                mPopupWindow.setOutsideTouchable(true);
+                        // Get a reference for the custom view close button
+                ListView lvcopy = (ListView) customView.findViewById(R.id.lvcopy);
+                lvcopy.setAdapter(adapter);
+                lvcopy.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        clearTimeslotTable();
+                        if(daylist.get(position).Empty()){
+                            statusMessage.setText("You cannot Copy Empty TimeSlots");
+                            statusMessage.show();
+                        }else{
+                            statusMessage.setText("TimeSlots are Covered!");
+                            statusMessage.show();
+                            int temp = daylist.get(position).getTimeSlotes().size()-1;
+                            List<Integer> copy = new ArrayList<Integer>();
+                            while(selectedTimeslots.size() != daylist.get(position).getTimeSlotes().size()){
+                                selectedTimeslots.add(daylist.get(position).getTimeSlotes().get(temp));
+                                copy.add(daylist.get(position).getTimeSlotes().get(temp));
+                                temp--;}
+                            setTimeSlots(selectedTimeslots);
+                            daylist.get(currentListPosition).setTimeSlotes(copy);
+                        }
+                    }
+                });
+                Button closeButton = (Button) customView.findViewById(R.id.backbutton);
+                closeButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                // Dismiss the popup window
+                                mPopupWindow.dismiss();
+                            }
+                        });
+                int posp = position;
+                if(posp >= 11){
+                    posp = 6;
+                }
+                mPopupWindow.showAtLocation(mLayout,Gravity.RIGHT,1000,-350+40*posp);
+                return false;
+            }
+        });
         lvday.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
@@ -96,10 +171,10 @@ public class AddEventActivity extends Activity {
                     int temp = daylist.get(position).getTimeSlotes().size()-1;
                     while(selectedTimeslots.size() != daylist.get(position).getTimeSlotes().size()){
                         selectedTimeslots.add(daylist.get(position).getTimeSlotes().get(temp));
-                        temp--;
-                        setTimeSlots(selectedTimeslots);}
+                        temp--;}
+                        setTimeSlots(selectedTimeslots);
                 }else{
-                        statusMessage.setText("Please long press to copy a timeslots");
+                        statusMessage.setText("Please long press to copy a TimeSlot");
                         statusMessage.show();
                     }
                 datePicker.updateDate(daylist.get(position).getYear(), daylist.get(position).getMonth()-1, daylist.get(position).getDay());
@@ -123,6 +198,7 @@ public class AddEventActivity extends Activity {
                         daylist.add(newdate);
                         day_list_item adapter = new day_list_item(getLayoutInflater(),daylist);
                         lvday.setAdapter(adapter);
+                        day_list_item cop_adapter = new day_list_item(inflater_copylist ,daylist);
                         if(checkDayListEmpty()){
                         emptybar.setText("");}
                     }
