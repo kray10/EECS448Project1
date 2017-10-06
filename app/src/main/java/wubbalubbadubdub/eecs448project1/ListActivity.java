@@ -117,7 +117,7 @@ public class ListActivity extends Activity {
 
         titleName.setText("Event Name");
         titleCreator.setText("Creator");
-        titleDay.setText("Date");
+        titleDay.setText("Start Date");
         titleTimeslots.setText("Scheduled Times");
 
         titleName.setTextSize(18);
@@ -176,8 +176,11 @@ public class ListActivity extends Activity {
             eventCreator.setText(workingEvent.getCreator());
             eventDay.setText(workingEvent.getDateSlots().get(0).getDate());
             eventName.setText(workingEvent.getName());
+            if(workingEvent.getDateSlots().size()==1){
             eventTimeslots.setText(HelperMethods.getTimeString(HelperMethods.listifyTimeslotInts(workingEvent.getDateSlots().get(0).getTimeslots()), format));
-
+            }else{
+                eventTimeslots.setText("Click to see Detail");
+            }
             row.addView(eventName);
             row.addView(eventCreator);
             row.addView(eventDay);
