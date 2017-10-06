@@ -54,6 +54,7 @@ public class AddEventActivity extends Activity {
     private ListView show;
     private List<Task> eventTask;
 
+
     private ListView copy_lsitview;
     private Context mContext;
 
@@ -80,6 +81,7 @@ public class AddEventActivity extends Activity {
 
         show = (ListView) findViewById(R.id.taskList);
         eventTask = new ArrayList<>();
+
 
         mContext = getApplicationContext();
         final LayoutInflater inflater_copylist = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -268,8 +270,18 @@ public class AddEventActivity extends Activity {
                 show.setAdapter(adapter1);
 
                 ((EditText)findViewById(R.id.taskName)).setText(" ");
+
             }
         });
+        Button clearTimeSlot = (Button) findViewById(R.id.ClearTimeSlots);
+        clearTimeSlot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearTimeslotTable();
+                updateTimeDisplay();
+                    statusMessage.setText("empty");
+                    statusMessage.show();
+            }});
     }
 
     /**
