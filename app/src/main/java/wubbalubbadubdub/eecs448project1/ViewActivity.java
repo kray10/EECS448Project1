@@ -3,6 +3,7 @@ package wubbalubbadubdub.eecs448project1;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -20,6 +21,10 @@ import android.widget.ListView;
 import android.widget.Space;
 import android.widget.Spinner;
 import android.widget.ImageButton;
+
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -31,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +45,7 @@ import wubbalubbadubdub.eecs448project1.data.DateSlot;
 import wubbalubbadubdub.eecs448project1.data.Event;
 import wubbalubbadubdub.eecs448project1.data.HelperMethods;
 import wubbalubbadubdub.eecs448project1.data.Task;
+
 
 /**
  * This activity is for viewing a certain activity.
@@ -63,10 +70,15 @@ public class ViewActivity extends Activity {
     private List<List<Integer>> currentTimeslots;
     private List<List<Integer>> selectedTimeslots;
 
+    private List<Integer> currentTimeslots;
+    private List<Integer> selectedTimeslots;
+
     private int selectedRow = -1;
     private int selectedSlot = -1;
 
     private Map<String, List<DateSlot>> userSignups;
+
+    private Map<String, DateSlot> userSignups;
 
     private Toast statusMessage;
 
@@ -75,6 +87,7 @@ public class ViewActivity extends Activity {
     private boolean adminMode;
 
     private ListView viewTaskList;
+
 
     //Color Variables - Material Design
     int BLUE_MAT = Color.rgb(2,136,209);
@@ -95,6 +108,8 @@ public class ViewActivity extends Activity {
 
         statusMessage = Toast.makeText(this, "", Toast.LENGTH_SHORT);
         builder =  new AlertDialog.Builder(this);
+
+
 
         dbHelper = new DatabaseHelper(getApplicationContext());
 
@@ -124,6 +139,7 @@ public class ViewActivity extends Activity {
         ArrayAdapter<String> adapterDates = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, eventDates);
         dateSpinner.setAdapter(adapterDates);
+
 
         adminMode = currentUser.equals(currentEvent.getCreator());
 
@@ -159,6 +175,16 @@ public class ViewActivity extends Activity {
             }
         }
 
+        currentTimeslots = HelperMethods.listifyTimeslotInts(currentEvent.getDateSlots().get(0).getTimeslots());
+        selectedTimeslots = new ArrayList<>();
+
+
+        updateTimeframe();
+
+        userSignups = dbHelper.getSignups(currentID);
+
+        prevSignup = userSignups.containsKey(currentUser);
+
 
 
         if (adminMode) {
@@ -190,6 +216,14 @@ public class ViewActivity extends Activity {
                 }
 
             });
+
+
+            ((Button)findViewById(R.id.btnSave)).setVisibility(View.GONE);
+        } else {
+            // Set availability
+
+            ((TextView)findViewById(R.id.tvSelectedUser)).setVisibility(View.GONE);
+            populateTimeslotTable();
         }
 
     }
@@ -216,6 +250,9 @@ public class ViewActivity extends Activity {
         }
 
         List<Integer> currentUserSelection = selectedTimeslots.get(dateIndex);
+        List<Integer> currentUserSelection = (prevSignup) ? HelperMethods.listifyTimeslotInts(userSignups.get(currentUser).getTimeslots()) : null;
+
+        if (prevSignup) selectedTimeslots = currentUserSelection;
 
         int count = 0;
         for (int i = 0; i < 4; i++) {
@@ -229,6 +266,8 @@ public class ViewActivity extends Activity {
                 cellParams.rightMargin = 5;
                 b.setLayoutParams(cellParams);
                 if (currentTimeslots.get(dateIndex).contains(count)) {
+
+                if (currentTimeslots.contains(count)) {
                     boolean intSelect = false;
                     if (currentUserSelection != null && currentUserSelection.contains(count)) {
                         intSelect = true;
@@ -254,6 +293,14 @@ public class ViewActivity extends Activity {
                             }
                             selected = !selected;
                             updateTimeDisplay(dateIndex);
+                                selectedTimeslots.remove(Integer.valueOf(id));
+                            } else {
+                                obj.setBackgroundColor(BLUE_MAT);
+                                selectedTimeslots.add(id);
+                            }
+                            selected = !selected;
+                            updateTimeDisplay();
+
                         }
                     });
                 } else {
@@ -271,6 +318,7 @@ public class ViewActivity extends Activity {
             layout.addView(tr, tableRowParams);
         }
         updateTimeDisplay(dateIndex);
+
     }
 
     /**
@@ -278,6 +326,11 @@ public class ViewActivity extends Activity {
      */
     private void displayEventSignups() {
         LinearLayout layout = (LinearLayout) findViewById(R.id.tbLayout);
+
+        TableLayout layout = (TableLayout) findViewById(R.id.tbLayout);
+
+        TableRow header = new TableRow(this);
+
 
         // Clear table
         for (int i = 0; i < layout.getChildCount(); i++) {
@@ -388,6 +441,87 @@ public class ViewActivity extends Activity {
 
             }
             layout.addView(tableLayout);
+
+        TableRow.LayoutParams cellParams = new TableRow.LayoutParams();
+        cellParams.setMargins(20, 20, 20, 20);
+
+        TextView userHeader = new TextView(this);
+        userHeader.setText("User");
+        userHeader.setTextSize(15);
+        userHeader.setTypeface(null, Typeface.BOLD);
+        userHeader.setLayoutParams(cellParams);
+        header.addView(userHeader);
+
+        for (int slot : currentTimeslots) {
+            TextView slotHeader = new TextView(this);
+            slotHeader.setText(HelperMethods.toTime(slot, format));
+            slotHeader.setTextSize(15);
+            slotHeader.setTypeface(null, Typeface.BOLD);
+            slotHeader.setLayoutParams(cellParams);
+            final int thisSlot = slot;
+
+            slotHeader.setOnClickListener(new View.OnClickListener() {
+                int slot = thisSlot;
+
+                @Override
+                public void onClick(View view) {
+                    selectedRow = -1;
+                    selectedSlot = slot;
+
+                    highlightSelection();
+
+                }
+            });
+
+            header.addView(slotHeader);
+        }
+
+        header.setBackgroundColor(Color.GRAY);
+
+        layout.addView(header);
+        int count = 1;
+        for (Map.Entry<String, DateSlot> entry : userSignups.entrySet()) {
+            TableRow signupRow = new TableRow(this);
+
+            TextView username = new TextView(this);
+            username.setPadding(10, 20, 10, 20);
+            username.setText(entry.getKey());
+            username.setTypeface(null, Typeface.BOLD);
+            signupRow.addView(username);
+            List<Integer> slots = HelperMethods.listifyTimeslotInts(entry.getValue().getTimeslots());
+
+            for (int slot : currentTimeslots) {
+                TextView avail = new TextView(this);
+
+                if (slots.contains(slot)) {
+                    // User is signed up for this
+                    avail.setText("AVAILABLE");
+                    avail.setBackgroundColor(GREEN_MAT);
+                } else if (entry.getValue().getTimeslots().isEmpty()) {
+                    avail.setBackgroundColor(Color.RED);
+                } else {
+                    avail.setBackgroundColor(Color.LTGRAY);
+                }
+                avail.setPadding(20, 20, 20, 20);
+
+                signupRow.addView(avail);
+            }
+
+            final int currentRow = count;
+
+            signupRow.setOnClickListener(new View.OnClickListener() {
+                int thisRow = currentRow;
+
+                @Override
+                public void onClick(View view) {
+                    selectedRow = thisRow;
+                    highlightSelection();
+                }
+            });
+
+            layout.addView(signupRow);
+            count++;
+
         }
     }
 
@@ -412,6 +546,10 @@ public class ViewActivity extends Activity {
 
             for (Map.Entry<String, List<DateSlot>> entry : userSignups.entrySet()) {
                 if (HelperMethods.listifyTimeslotInts(entry.getValue().get(0).getTimeslots()).contains(selectedSlot)) {
+
+            for (Map.Entry<String, DateSlot> entry : userSignups.entrySet()) {
+                if (HelperMethods.listifyTimeslotInts(entry.getValue().getTimeslots()).contains(selectedSlot)) {
+
                     userCount++;
                     users = users + entry.getKey() + ", ";
                 }
@@ -447,6 +585,8 @@ public class ViewActivity extends Activity {
                 } else {
                     statusMessage.setText("Somethign went wrong");
                 }
+
+       
             }
         }
         statusMessage.show();
@@ -474,17 +614,19 @@ public class ViewActivity extends Activity {
 
         String disp = "Your Selected Availability: " + HelperMethods.getTimeString(selectedTimeslots.get(dateIndex), format);
 
+
         timeDisplay.setText(disp);
     }
 
     /**
      * This function updates the timeframe of the event on creation and when the 12h/24h is toggled.
      */
-    private void updateTimeframe(int pos) {
+
+    private void updateTimeframe() {
 
         TextView eventTimeframe = (TextView) findViewById(R.id.tvEventTimeframe);
 
-        eventTimeframe.setText("Event timeframe: " + HelperMethods.getTimeString(currentTimeslots.get(pos), format));
+        eventTimeframe.setText("Event timeframe: " + HelperMethods.getTimeString(currentTimeslots, format));
     }
 
     /**
@@ -597,5 +739,9 @@ class taskAdapter extends BaseAdapter {
         taskName.setText(Item.getTaskName());
         taskHelper.setText(Item.getTaskHelper());
         return viewInfromation;
+
+            updateTimeDisplay();
+        }
+        updateTimeframe();
     }
 }

@@ -1,6 +1,8 @@
 package wubbalubbadubdub.eecs448project1;
 
+
 import java.util.List;
+
 
 /**
  * Created by simonyang on 2017/9/29.
@@ -10,6 +12,7 @@ public class dayitem {
     private int day;
     private int year;
     private int month;
+
     private boolean emptytimeslot;
     private List<Integer> timeSlotes;
     public dayitem(int day, int year, int month){
@@ -21,6 +24,7 @@ public class dayitem {
     public void setTimeSlotes(List<Integer> timeSlotes){
         this.emptytimeslot = false;
         this.timeSlotes = timeSlotes;}
+
 
     public void setYear(int year) {
         this.year = year;
@@ -46,9 +50,11 @@ public class dayitem {
         return year;
     }
 
+
     public List<Integer> getTimeSlotes(){ return timeSlotes;}
 
     public boolean Empty() {
         return emptytimeslot;
     }
+
 }

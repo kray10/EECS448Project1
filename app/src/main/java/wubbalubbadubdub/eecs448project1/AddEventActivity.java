@@ -14,6 +14,12 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.content.Intent;
+import android.media.Image;
+import android.os.Bundle;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,6 +36,7 @@ import android.widget.Toast;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -39,6 +46,10 @@ import wubbalubbadubdub.eecs448project1.data.DateSlot;
 import wubbalubbadubdub.eecs448project1.data.Event;
 import wubbalubbadubdub.eecs448project1.data.HelperMethods; //For toTime() method
 import wubbalubbadubdub.eecs448project1.data.Task;
+
+
+import static wubbalubbadubdub.eecs448project1.R.id.taskList;
+import static wubbalubbadubdub.eecs448project1.R.id.taskName;
 
 /**
  * AddEventActivity.java
@@ -51,8 +62,17 @@ public class AddEventActivity extends Activity {
     private List<dayitem> daylist;//listview item information, used to hold all date item
     private ListView lvday; //listview, used to show all item information
 
+    private ListView show;
+    private List<Task> eventTask;
+
+
     private ListView copy_lsitview;
     private Context mContext;
+
+    private List<dayitem> daylist;//listview item information, used to hold all date item
+    private ListView lvday; //listview, used to show all item information
+    private ListView show;
+    private List<Task> eventTask;
 
     private DatabaseHelper dbHelper;
     private Toast statusMessage;
@@ -75,12 +95,22 @@ public class AddEventActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event);
 
+        show = (ListView) findViewById(R.id.taskList);
+        eventTask = new ArrayList<>();
+
+
         mContext = getApplicationContext();
         final LayoutInflater inflater_copylist = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
         final View copy_lsitview_inflater = inflater_copylist.inflate(R.layout.date_copy_list,null);
         lvday = (ListView) findViewById(R.id.date_list);
         copy_lsitview = (ListView) copy_lsitview_inflater.findViewById(R.id.lvcopy);
 
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_add_event);
+        lvday = (ListView) findViewById(R.id.date_list);
+        show = (ListView) findViewById(R.id.taskList);
+        eventTask = new ArrayList<>();
         daylist = new ArrayList<>();
         final DatePicker datePicker = (DatePicker) findViewById(R.id.datePicker);
         final TextView emptybar = (TextView) findViewById(R.id.lvemptybar);
@@ -92,6 +122,7 @@ public class AddEventActivity extends Activity {
         currentUser = intent.getStringExtra("currentUser");
 
         final TextView welcome = (TextView) findViewById(R.id.tvWelcome);
+        TextView welcome = (TextView) findViewById(R.id.tvWelcome);
         welcome.setText(currentUser + ", create your event");
         selectedTimeslots = new ArrayList<>();
 
@@ -182,6 +213,13 @@ public class AddEventActivity extends Activity {
             }
         });
             //it's a Imagebutton, used to add multi-day into a tiny list_view
+        LayoutInflater inflater = getLayoutInflater();
+
+        final day_list_item adapter = new day_list_item(inflater,daylist);
+
+        lvday.setAdapter(adapter);
+
+        //it's a Imagebutton, used to add multi-day into a tiny list_view
         ImageButton addDay = (ImageButton) findViewById(R.id.addDayToList);
         addDay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -220,6 +258,15 @@ public class AddEventActivity extends Activity {
                     }
                 }
             }
+                if(checkSameDate(datePicker.getDayOfMonth(),datePicker.getYear(),datePicker.getMonth())){
+                dayitem newdate = new dayitem(datePicker.getDayOfMonth(),datePicker.getYear(),datePicker.getMonth());
+                daylist.add(newdate);
+                day_list_item adapter = new day_list_item(getLayoutInflater(),daylist);
+                lvday.setAdapter(adapter);
+                if(checkDayListEmpty()){
+                    emptybar.setText("");
+                }
+            }}
         });
         ImageButton cleardate = (ImageButton) findViewById(R.id.removeall);
         cleardate.setOnClickListener(new View.OnClickListener() {
@@ -244,11 +291,48 @@ public class AddEventActivity extends Activity {
                     statusMessage.setText("empty");
                     statusMessage.show();
             }});
+
+            }
+        });
+
+
+        final Task_adapter adapter1 = new Task_adapter(inflater,eventTask);
+
+        show.setAdapter(adapter1);
+
+        Button addTask = (Button) findViewById(R.id.addTaskButton);
+        addTask.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ListView show = (ListView) findViewById(R.id.taskList);
+                EditText mEdit   = (EditText)findViewById(R.id.taskName);
+
+                Task newTask = new Task(mEdit.getText().toString(), "");
+                eventTask.add(newTask);
+                Task_adapter adapter1 = new Task_adapter(getLayoutInflater(),eventTask);
+                show.setAdapter(adapter1);
+
+                ((EditText)findViewById(R.id.taskName)).setText(" ");
+
+            }
+        });
+        Button clearTimeSlot = (Button) findViewById(R.id.ClearTimeSlots);
+        clearTimeSlot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearTimeslotTable();
+                updateTimeDisplay();
+                    statusMessage.setText("empty");
+                    statusMessage.show();
+            }});
+            }
+        });
+
     }
 
     /**
      * This function will create the table of buttons to select an event's timeframe
-     *
+
      */
     private void createTimeslotTable() {
         TableLayout layout = (TableLayout) findViewById(R.id.tbLayout);
@@ -275,6 +359,19 @@ public class AddEventActivity extends Activity {
                         obj.setBackgroundColor(BLUE_MAT);
                         if(isInsideTimeSlots(id)){
                         selectedTimeslots.add(id);}
+                    boolean selected = false;
+
+                    @Override
+                    public void onClick(View v) {
+                        Button obj = (Button) v;
+                        if (selected) {
+                            obj.setBackgroundColor(GREEN_MAT);
+                            selectedTimeslots.remove(Integer.valueOf(id));
+                        } else {
+                            obj.setBackgroundColor(BLUE_MAT);
+                            selectedTimeslots.add(id);
+                        }
+                        selected = !selected;
                         updateTimeDisplay();
                     }
                 });
@@ -295,6 +392,8 @@ public class AddEventActivity extends Activity {
     private void clearTimeslotTable() {
         while(selectedTimeslots.size() !=0 ){
         selectedTimeslots.remove(selectedTimeslots.size()-1);}
+
+        selectedTimeslots.clear();
 
         TableLayout tableLayout = (TableLayout) findViewById(R.id.tbLayout);
         int count = 0;
@@ -373,6 +472,7 @@ public class AddEventActivity extends Activity {
             }
         }
 
+
         //Check if user is already signed up for any conflicting events
         /*pseudo: if intersection of (currentuser.signups.timeslots) list with (e.timeslots) list
          * is nonempty, -> conflict found, return false*/
@@ -393,13 +493,13 @@ public class AddEventActivity extends Activity {
         if (daylist.isEmpty()) {
             //Build date string for event
             DatePicker datePicker = (DatePicker) findViewById(R.id.datePicker);
-            int month = datePicker.getMonth();
+            int month = datePicker.getMonth() + 1;
             int day = datePicker.getDayOfMonth();
             int year = datePicker.getYear();
             dates.add(HelperMethods.dateToString(month, day, year));
         } else {
             for (int i = 0; i < daylist.size(); i++) {
-                int month = daylist.get(i).getMonth();
+                int month = daylist.get(i).getMonth() + 1;
                 int day = daylist.get(i).getDay();
                 int year = daylist.get(i).getYear();
                 dates.add(HelperMethods.dateToString(month, day, year));
@@ -411,6 +511,7 @@ public class AddEventActivity extends Activity {
         String name = nameText.getText().toString();
 
         //Stringify timeslot list in int format for storage in db
+
         for (int i = 0; i < daylist.size(); i++) {
             DateSlot dateSlot;
             if (!daylist.get(i).Empty()) {
@@ -418,6 +519,11 @@ public class AddEventActivity extends Activity {
             } else {
                 dateSlot = new DateSlot("", dates.get(i));
             }
+
+        String timeslotIntList = HelperMethods.stringifyTimeslotInts(selectedTimeslots);
+
+        for (int i = 0; i < dates.size(); i++) {
+            DateSlot dateSlot = new DateSlot(timeslotIntList, dates.get(i));
             dateSlotList.add(dateSlot);
         }
 
@@ -432,10 +538,15 @@ public class AddEventActivity extends Activity {
 
             //Add event and automatically sign creator up for duration of event
             int eventID = dbHelper.addEvent(e);
+
             for (int i = 0; i < e.getDateSlots().size(); i ++) {
                 dbHelper.addSignup(eventID, currentUser,
                         HelperMethods.listifyTimeslotInts(e.getDateSlots().get(i).getTimeslots()),
                         e.getDateSlots().get(i).getDate());
+
+            for (int i = 0; i < dates.size(); i ++) {
+                dbHelper.addSignup(eventID, currentUser, selectedTimeslots, dates.get(i));
+
             }
 
             statusMessage.setText("Your event has been created.");
@@ -462,6 +573,8 @@ public class AddEventActivity extends Activity {
                 if(!checkSameDate(d,y,m)){
                    setTimeSlots(selectedTimeslots);
                 }
+
+                //clearTimeslotTable(); ENABLE TO RESET TIMESLOTS UPON DATE SWITCH
             }
         });
 
@@ -491,6 +604,17 @@ public class AddEventActivity extends Activity {
                 while(selectedTimeslots.size() != daylist.get(i).getTimeSlotes().size()){
                 selectedTimeslots.add(daylist.get(i).getTimeSlotes().get(temp));
                 temp--;}}
+
+
+    public int getSizeOfListView(){
+        if(daylist.isEmpty())
+        {return 0;}
+        return daylist.size();
+    }
+    public boolean checkSameDate(int day, int year ,int month){
+        for(int i = 0; i < daylist.size(); i++) {
+            if((daylist.get(i).getDay() == day)&&(daylist.get(i).getMonth() == month)&&(daylist.get(i).getYear() == year)){
+
                 statusMessage.setText("This day is already in your List");
                 statusMessage.show();
                 return false;
@@ -543,4 +667,5 @@ public class AddEventActivity extends Activity {
             statusMessage.show();
         }
     }
+
 }
