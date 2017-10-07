@@ -146,6 +146,10 @@ public class ViewActivity extends Activity {
             tempList = HelperMethods.listifyTimeslotInts("");
             selectedTimeslots.add(tempList);
         }
+        System.out.println(currentEvent.getTasks().size());
+        for (int i = 0; i < currentEvent.getTasks().size(); i++) {
+            System.out.println(currentEvent.getTasks().get(i));
+        }
 
         userSignups = dbHelper.getSignups(currentID);
         prevSignup = userSignups.containsKey(currentUser);
@@ -169,11 +173,13 @@ public class ViewActivity extends Activity {
             ((Button)findViewById(R.id.copyTimeslots)).setVisibility(View.GONE);
             ((Spinner)findViewById(R.id.tvMultiDates)).setVisibility(View.GONE);
             ((ListView)findViewById(R.id.tvTaskList)).setVisibility(View.GONE);
+            ((TextView)findViewById(R.id.tvDate)).setVisibility(View.GONE);
         } else {
             // Set availability
             ((TextView)findViewById(R.id.textView2)).setVisibility(View.GONE);
             ((TextView)findViewById(R.id.tvSelectedUser)).setVisibility(View.GONE);
             ((TextView)findViewById(R.id.tvDate)).setVisibility(View.GONE);
+
             updateTimeframe(0);
 
             dateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -198,7 +204,7 @@ public class ViewActivity extends Activity {
     */
     private void populateTask() {
     ListView lvtask = (ListView) findViewById(R.id.taskLayout);
-        taskAdapter adapter = new taskAdapter(getLayoutInflater(),dbHelper.getEvent(currentID).getTasks());
+        taskAdapter adapter = new taskAdapter(getLayoutInflater(),currentEvent.getTasks());
     lvtask.setAdapter(adapter);
     }
 
@@ -327,9 +333,6 @@ public class ViewActivity extends Activity {
                     public void onClick(View view) {
                         selectedRow = -1;
                         selectedSlot = slot;
-
-                        highlightSelection();
-
                     }
                 });
 
@@ -358,7 +361,6 @@ public class ViewActivity extends Activity {
                 List<Integer> slots = HelperMethods.listifyTimeslotInts(entry.getValue().get(dateIndex).getTimeslots());
                 for (int slot : currentTimeslots.get(dateIndex)) {
                     TextView avail = new TextView(this);
-
                     if (slots.contains(slot)) {
                         // User is signed up for this
                         avail.setText("AVAILABLE");
@@ -379,7 +381,6 @@ public class ViewActivity extends Activity {
                     @Override
                     public void onClick(View view) {
                         selectedRow = thisRow;
-                        highlightSelection();
                     }
                 });
 
@@ -389,40 +390,6 @@ public class ViewActivity extends Activity {
             }
             layout.addView(tableLayout);
         }
-    }
-
-    /**
-     * This method allows for selection of a table row and displaying a user-friendly list of
-     * the given user's availability
-     */
-    private void highlightSelection() {
-        String disp;
-        TableLayout layout = (TableLayout) findViewById(R.id.tbLayout);
-
-        TableRow highlight = (TableRow)layout.getChildAt(selectedRow);
-        if (selectedRow != -1) {
-
-            String user = ((TextView)highlight.getChildAt(0)).getText().toString();
-
-            disp = user + "'s Availability: " + HelperMethods.getTimeString(HelperMethods.listifyTimeslotInts((userSignups.get(user).get(0).getTimeslots())), format);
-        } else {
-
-            String users = "";
-            int userCount = 0;
-
-            for (Map.Entry<String, List<DateSlot>> entry : userSignups.entrySet()) {
-                if (HelperMethods.listifyTimeslotInts(entry.getValue().get(0).getTimeslots()).contains(selectedSlot)) {
-                    userCount++;
-                    users = users + entry.getKey() + ", ";
-                }
-            }
-
-            if (userCount > 0) users = users.substring(0, users.length() - 3);
-
-            disp = "For timeslot " + HelperMethods.toTime(selectedSlot, format) + " " + userCount + " user(s) are available: " + users;
-        }
-
-        ((TextView)findViewById(R.id.tvSelectedUser)).setText(disp);
     }
 
     /**
@@ -448,6 +415,10 @@ public class ViewActivity extends Activity {
                     statusMessage.setText("Somethign went wrong");
                 }
             }
+        }
+
+        for (int i = 0; i < currentEvent.getTasks().size(); i++) {
+            dbHelper.updateTasks(currentID, currentEvent.getTasks().get(i));
         }
         statusMessage.show();
         finish();
@@ -496,7 +467,6 @@ public class ViewActivity extends Activity {
 
         if (adminMode) {
             displayEventSignups();
-            highlightSelection();
         } else {
             populateTimeslotTable();
 
@@ -524,7 +494,7 @@ public class ViewActivity extends Activity {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     currentEvent.getTasks().get(index).setTaskHelper(currentUser);
-                                    viewTaskList.setAdapter(adapterTask);
+                                    adapterTask.notifyDataSetChanged();
                                 }
                             })
                             .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -542,7 +512,7 @@ public class ViewActivity extends Activity {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     currentEvent.getTasks().get(index).setTaskHelper("");
-                                    viewTaskList.setAdapter(adapterTask);
+                                    adapterTask.notifyDataSetChanged();
                                 }
                             })
                             .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -590,7 +560,7 @@ class taskAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
 
-        View viewInfromation = mInflater.inflate(R.layout.day_list_item, null);
+        View viewInfromation = mInflater.inflate(R.layout.task_item, null);
         Task Item = mitem.get(i);
         TextView taskName = viewInfromation.findViewById(R.id.task);
         TextView taskHelper = viewInfromation.findViewById(R.id.helper);
