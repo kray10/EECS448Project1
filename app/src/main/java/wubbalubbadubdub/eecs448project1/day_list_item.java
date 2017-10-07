@@ -44,27 +44,6 @@ public class day_list_item extends BaseAdapter {
         View viewInfromation = mInflater.inflate(R.layout.day_list_item, null);
         dayitem Item = mitem.get(i);
         TextView date = viewInfromation.findViewById(R.id.daytext);
-//        ImageButton deletedate = viewInfromation.findViewById(R.id.deleteButton);
-//        deletedate.setTag(i);
-//        deletedate.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                int position = (int) view.getTag();
-//                removeItem(position);
-//                notifyDataSetChanged();
-//            }
-//        });
-//        ImageButton copytimeslot = viewInfromation.findViewById(R.id.copytimeslot);
-//        copytimeslot.setTag(i);
-//        copytimeslot.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                //PopupWindow alldate = (PopupWindow) new
-//
-//                //notifyDataSetChanged();
-//            }
-//        });
-
         date.setText(getdate(Item.getDay(), Item.getMonth(), Item.getYear()));
         return viewInfromation;
     }

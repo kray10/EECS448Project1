@@ -6,8 +6,8 @@ package wubbalubbadubdub.eecs448project1.data;
 
 public class Task {
 
-    public String taskName;
-    public String taskHelper;
+    private String taskName;
+    private String taskHelper;
 
 
     public Task(String taskName, String taskHelper) {
@@ -32,6 +32,9 @@ public class Task {
     }
 
     public String toString() {
+        if (taskHelper.isEmpty()) {
+            return taskName;
+        }
         return taskName + ": " + taskHelper;
     }
 }

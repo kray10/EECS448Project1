@@ -150,6 +150,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         for(int i = 0; i < e.getTasks().size(); i++) {
+            System.out.println(e.getTasks().get(i));
             values.clear();
             values.put(DBContract.TaskTable.COLUMN_NAME_TASKNAME, e.getTasks().get(i).getTaskName());
             values.put(DBContract.TaskTable.COLUMN_NAME_HELPER, e.getTasks().get(i).getTaskHelper());
@@ -399,6 +400,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
     }
 
+    public int updateTasks(int eventID, Task task) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String taskName = task.getTaskName();
+        String volunteer = task.getTaskHelper();
+
+        ContentValues values = new ContentValues();
+        values.put(DBContract.TaskTable.COLUMN_NAME_HELPER, volunteer);
+
+        String selection = DBContract.TaskTable.COLUMN_NAME_EVENT + " = ? AND " + DBContract.TaskTable.COLUMN_NAME_TASKNAME + " = ?";
+
+        String[] selectionArgs = {Integer.toString(eventID), taskName};
+
+        return  db.update(
+                DBContract.TaskTable.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs
+        );
+    }
+
     private List<Task> getTasks (int eventID, SQLiteDatabase db) {
 
         String[] columnsTasks = {
@@ -437,7 +459,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         String[] where = {Integer.toString(eventID)};
 
-        String sortOrderTime = DBContract.TimeSlotTable.COLUMN_NAME_DAY + " COLLATE NOCASE ASC";
+        String sortOrderTime = "DATE(" + DBContract.TimeSlotTable.COLUMN_NAME_DAY + ") COLLATE NOCASE ASC";
 
         Cursor queryTime = db.query(
                 DBContract.TimeSlotTable.TABLE_NAME,

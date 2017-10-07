@@ -1,7 +1,9 @@
 package wubbalubbadubdub.eecs448project1;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
@@ -13,11 +15,14 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TableLayout;
@@ -50,15 +55,18 @@ public class AddEventActivity extends Activity {
     private int currentListPosition;
     private List<dayitem> daylist;//listview item information, used to hold all date item
     private ListView lvday; //listview, used to show all item information
+    private ListView lvTaskList;
 
     private ListView copy_lsitview;
     private Context mContext;
+    private AlertDialog.Builder dialog;
 
     private DatabaseHelper dbHelper;
     private Toast statusMessage;
 
     private String currentUser;
     private List<Integer> selectedTimeslots;
+    private List<Task> taskList;
 
     private boolean format = false; //Time format: false=12h | true=24h
 
@@ -74,6 +82,7 @@ public class AddEventActivity extends Activity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event);
+        dialog = new AlertDialog.Builder(this);
 
         mContext = getApplicationContext();
         final LayoutInflater inflater_copylist = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -94,6 +103,14 @@ public class AddEventActivity extends Activity {
         final TextView welcome = (TextView) findViewById(R.id.tvWelcome);
         welcome.setText(currentUser + ", create your event");
         selectedTimeslots = new ArrayList<>();
+
+        // setup task list
+        taskList = new ArrayList<>();
+        lvTaskList = (ListView) findViewById(R.id.lvTaskList);
+        final ArrayAdapter adapterTask = new ArrayAdapter(this, android.R.layout.simple_list_item_1, taskList);
+        adapterTask.setNotifyOnChange(true);
+        lvTaskList.setAdapter(adapterTask);
+        setupTaskListClickListener(adapterTask);
 
         createTimeslotTable();
         setupDatePicker(datePicker);
@@ -420,9 +437,6 @@ public class AddEventActivity extends Activity {
             }
             dateSlotList.add(dateSlot);
         }
-
-        List<Task> taskList = new ArrayList<>();
-
         //Create an event, attempt to verify it, and send to db if all is well
         /*Event ID is set to -1 because it's useless until a real ID is assigned
          *by the primary key upon insertion to the database after successful verification.*/
@@ -542,5 +556,79 @@ public class AddEventActivity extends Activity {
                     "/" + daylist.get(currentListPosition).getYear());
             statusMessage.show();
         }
+    }
+
+    private void setupTaskListClickListener(final ArrayAdapter arrayAdapter) {
+        lvTaskList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                final int index = i;
+                dialog.setTitle("Remove Task From List")
+                        .setMessage("Would you like to remove this task from the event?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                taskList.remove(index);
+                                arrayAdapter.notifyDataSetChanged();
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+                return  true;
+            }
+        });
+    }
+
+    public void addTaskToEvent(View v) {
+        final View current = v;
+        final EditText input = new EditText(this);
+        input.setSingleLine();
+        FrameLayout container = new FrameLayout(this);
+        FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        params.setMargins(50, 0, 50, 0);
+
+        input.setLayoutParams(params);
+        container.addView(input);
+        dialog.setTitle("Add Task")
+                .setView(container)
+                .setMessage("Enter task name")
+                .setPositiveButton("Add Task", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        String taskName = input.getText().toString();
+                        boolean uniqueTaskName = true;
+                        for (int j = 0; j < taskList.size(); j++) {
+                            if (taskName.equals(taskList.get(j).getTaskName())) {
+                                uniqueTaskName = false;
+                            }
+                        }
+                        if (taskName.length() == 0) {
+                            statusMessage.setText("The task name can not be empty");
+                            statusMessage.show();
+                            addTaskToEvent(current);
+                        } else if (!uniqueTaskName){
+                            statusMessage.setText("There is already a task with that name");
+                            statusMessage.show();
+                            addTaskToEvent(current);
+                        } else {
+                                taskList.add(new Task(taskName, ""));
+                                ArrayAdapter adapter = (ArrayAdapter) lvTaskList.getAdapter();
+                                adapter.notifyDataSetChanged();
+                        }
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                })
+        .show();
     }
 }

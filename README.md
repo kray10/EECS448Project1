@@ -1,8 +1,8 @@
-#Team J-Hawk's Schedule Planner v2
+# Team J-Hawk's Schedule Planner v2
 
-##EECS448 Project 2
+## EECS448 Project 2
 
-###TODOLIST
+### TODOLIST
 
 #### DatabaseHelper
 - ~~Add SQL functions for supporting multiple days and timeslots~~ **DONE!**
