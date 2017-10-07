@@ -108,9 +108,7 @@ public class AddEventActivity extends Activity {
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 currentListPosition = position;
                 ConstraintLayout mLayout = (ConstraintLayout) findViewById(R.id.cl);
-                        // Initialize a new instance of LayoutInflater service
                 LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
-                        // Inflate the custom layout/view
                 View customView = inflater.inflate(R.layout.date_copy_list,null);
                 final PopupWindow mPopupWindow = new PopupWindow(
                         customView,
@@ -123,7 +121,6 @@ public class AddEventActivity extends Activity {
                 mPopupWindow.setBackgroundDrawable(new BitmapDrawable());
                 mPopupWindow.setFocusable(true);
                 mPopupWindow.setOutsideTouchable(true);
-                        // Get a reference for the custom view close button
                 ListView lvcopy = (ListView) customView.findViewById(R.id.lvcopy);
                 lvcopy.setAdapter(adapter);
                 lvcopy.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -151,7 +148,6 @@ public class AddEventActivity extends Activity {
                 closeButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                // Dismiss the popup window
                                 mPopupWindow.dismiss();
                             }
                         });
@@ -181,7 +177,6 @@ public class AddEventActivity extends Activity {
                 datePicker.updateDate(daylist.get(position).getYear(), daylist.get(position).getMonth()-1, daylist.get(position).getDay());
             }
         });
-            //it's a Imagebutton, used to add multi-day into a tiny list_view
         ImageButton addDay = (ImageButton) findViewById(R.id.addDayToList);
         addDay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -447,6 +442,10 @@ public class AddEventActivity extends Activity {
 
         }else statusMessage.show();
     }
+    /**
+     * initalization of DatePicker
+     *
+     */
     public void setupDatePicker(DatePicker datePicker){
         //Set Date Picker to current date, datePicker constraints etc.
         int[] date = HelperMethods.getCurrentDate();
@@ -472,6 +471,10 @@ public class AddEventActivity extends Activity {
         datePicker.setMaxDate((max.getTime()).getTime());
 
     }
+    /**
+     * CheckDayList , if daylist is empty return false, otherwise return true
+     *
+     */
     public boolean checkDayListEmpty(){
         if(daylist.isEmpty()) {
             return false;
@@ -498,7 +501,10 @@ public class AddEventActivity extends Activity {
         }
         return true;
     }
-
+    /**
+     * check All TimeSlots , if there is an empty TimeSlots, it will send an error message
+     *
+     */
     public void checkAllTimeSlots(){
         for(int i = 0; i < daylist.size(); i++){
             if(daylist.get(i).getTimeSlotes() == null){
@@ -507,7 +513,10 @@ public class AddEventActivity extends Activity {
             }
         }
     }
-
+    /**
+     * reset the timeSlots table, show the timeSlots Table as the timeSlots
+     *
+     */
     public void setTimeSlots(List<Integer> timeSlots){
         TableLayout tableLayout = (TableLayout) findViewById(R.id.tbLayout);
         int count = 0;
@@ -523,7 +532,10 @@ public class AddEventActivity extends Activity {
         }
         updateTimeDisplay();
     }
-
+    /**
+     * Check a Timeslot inside you timeslots_list or not
+     *
+     */
     public boolean isInsideTimeSlots(int index){
         int count = selectedTimeslots.size();
         while(count > 0){
@@ -534,7 +546,10 @@ public class AddEventActivity extends Activity {
         }
         return true;
     }
-
+    /**
+     * save your change of timeslots
+     * set to onClick, when you want to save your change
+     */
     public void saveTimeSlots(View v) {
         if (!selectedTimeslots.isEmpty()) {
             daylist.get(currentListPosition).setTimeSlotes(new ArrayList<Integer>(selectedTimeslots));
