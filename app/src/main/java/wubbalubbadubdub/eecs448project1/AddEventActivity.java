@@ -486,6 +486,11 @@ public class AddEventActivity extends Activity {
         datePicker.setMaxDate((max.getTime()).getTime());
 
     }
+
+    /**
+     * check whether dayl list is empty or not
+     * @return bool
+     */
     public boolean checkDayListEmpty(){
         if(daylist.isEmpty()) {
             return false;
@@ -513,6 +518,10 @@ public class AddEventActivity extends Activity {
         return true;
     }
 
+    /**
+     * this methos is to check all time slots
+     */
+
     public void checkAllTimeSlots(){
         for(int i = 0; i < daylist.size(); i++){
             if(daylist.get(i).getTimeSlotes() == null){
@@ -521,6 +530,11 @@ public class AddEventActivity extends Activity {
             }
         }
     }
+
+    /**
+     * this method is to set timeslots
+     * @param timeSlots
+     */
 
     public void setTimeSlots(List<Integer> timeSlots){
         TableLayout tableLayout = (TableLayout) findViewById(R.id.tbLayout);
@@ -538,6 +552,11 @@ public class AddEventActivity extends Activity {
         updateTimeDisplay();
     }
 
+    /**
+     * this method is to check whether is inside timeslots.
+     * @param index
+     * @return
+     */
     public boolean isInsideTimeSlots(int index){
         int count = selectedTimeslots.size();
         while(count > 0){
@@ -548,7 +567,9 @@ public class AddEventActivity extends Activity {
         }
         return true;
     }
-
+    /**
+     *this method is to save timeslots
+     */
     public void saveTimeSlots(View v) {
         if (!selectedTimeslots.isEmpty()) {
             daylist.get(currentListPosition).setTimeSlotes(new ArrayList<Integer>(selectedTimeslots));
@@ -558,6 +579,10 @@ public class AddEventActivity extends Activity {
         }
     }
 
+    /**
+     * this method is to set up task list
+     * @param arrayAdapter
+     */
     private void setupTaskListClickListener(final ArrayAdapter arrayAdapter) {
         lvTaskList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -583,6 +608,11 @@ public class AddEventActivity extends Activity {
             }
         });
     }
+
+    /**
+     * this method is to add task to event
+     * @param v
+     */
 
     public void addTaskToEvent(View v) {
         final View current = v;

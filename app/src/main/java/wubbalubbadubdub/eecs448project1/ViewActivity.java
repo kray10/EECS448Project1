@@ -200,8 +200,9 @@ public class ViewActivity extends Activity {
 
     }
 
-    /*this method is to populate tasks list
-    */
+    /**
+     * this method is to populate tasks list
+     */
     private void populateTask() {
     ListView lvtask = (ListView) findViewById(R.id.taskLayout);
         taskAdapter adapter = new taskAdapter(getLayoutInflater(),currentEvent.getTasks());
