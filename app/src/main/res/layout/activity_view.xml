@@ -35,13 +35,14 @@
         android:id="@+id/tvDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="24dp"
         android:textSize="20sp"
         app:layout_constraintLeft_toLeftOf="@+id/tvCreator"
         app:layout_constraintTop_toBottomOf="@+id/tvCreator"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintTop_creator="1"
-        tools:text="PLACEHOLDER DATE" />
+        tools:text="PLACEHOLDER DATE"
+        android:layout_marginLeft="0dp" />
 
 
     <TextView
@@ -203,21 +204,24 @@
 
     <TextView
         android:id="@+id/taskLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="7dp"
+        android:layout_width="53dp"
+        android:layout_height="29dp"
+        android:layout_marginBottom="6dp"
         android:layout_marginLeft="0dp"
         android:text="Tasks:"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"
         app:layout_constraintBottom_toTopOf="@+id/tvTaskList"
-        app:layout_constraintLeft_toLeftOf="@+id/tvTaskList" />
+        app:layout_constraintLeft_toLeftOf="@+id/tvTaskList"
+        tools:layout_editor_absoluteX="355dp"
+        tools:layout_editor_absoluteY="447dp" />
 
     <ListView
         android:id="@+id/tvTaskList"
-        android:layout_width="317dp"
-        android:layout_height="124dp"
-        android:layout_marginBottom="34dp"
+        android:layout_width="324dp"
+        android:layout_height="140dp"
+        android:layout_marginBottom="-18dp"
+        android:layout_marginLeft="381dp"
         app:layout_constraintBottom_toTopOf="@+id/tvSelectedTimes"
-        android:layout_marginLeft="367dp"
         app:layout_constraintLeft_toLeftOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

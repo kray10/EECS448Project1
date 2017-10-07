@@ -461,6 +461,10 @@ public class AddEventActivity extends Activity {
 
         }else statusMessage.show();
     }
+    /**
+     * initalization of DatePicker
+     * @param datePicker is the widget of datePicker
+     */
     public void setupDatePicker(DatePicker datePicker){
         //Set Date Picker to current date, datePicker constraints etc.
         int[] date = HelperMethods.getCurrentDate();
@@ -500,7 +504,7 @@ public class AddEventActivity extends Activity {
     }
     /**
      * Check User dates, Make sure they will not add one day more than one time
-     *
+     * @param day , year, month is a date
      */
     public boolean checkSameDate(int day, int year ,int month){
         for(int i = 0; i < daylist.size(); i++) {
@@ -517,11 +521,10 @@ public class AddEventActivity extends Activity {
         }
         return true;
     }
-
     /**
-     * this methos is to check all time slots
+     * check All TimeSlots , if there is an empty TimeSlots, it will send an error message
+     *
      */
-
     public void checkAllTimeSlots(){
         for(int i = 0; i < daylist.size(); i++){
             if(daylist.get(i).getTimeSlotes() == null){
@@ -530,12 +533,10 @@ public class AddEventActivity extends Activity {
             }
         }
     }
-
     /**
-     * this method is to set timeslots
-     * @param timeSlots
+     * reset the timeSlots table, show the timeSlots Table as the timeSlots
+     * @param timeSlots is a list of time slots, stored by Integer Object
      */
-
     public void setTimeSlots(List<Integer> timeSlots){
         TableLayout tableLayout = (TableLayout) findViewById(R.id.tbLayout);
         int count = 0;
@@ -551,11 +552,9 @@ public class AddEventActivity extends Activity {
         }
         updateTimeDisplay();
     }
-
     /**
-     * this method is to check whether is inside timeslots.
-     * @param index
-     * @return
+     * Check a Timeslot inside you timeslots_list or not
+     * @param index Integer
      */
     public boolean isInsideTimeSlots(int index){
         int count = selectedTimeslots.size();
@@ -568,7 +567,8 @@ public class AddEventActivity extends Activity {
         return true;
     }
     /**
-     *this method is to save timeslots
+     * save your change of timeslots
+     * set to onClick, when you want to save your change
      */
     public void saveTimeSlots(View v) {
         if (!selectedTimeslots.isEmpty()) {
@@ -578,10 +578,9 @@ public class AddEventActivity extends Activity {
             statusMessage.show();
         }
     }
-
     /**
-     * this method is to set up task list
-     * @param arrayAdapter
+     * used to setup tasklist, when click
+     * @param arrayAdapter, An adapter used by ListView
      */
     private void setupTaskListClickListener(final ArrayAdapter arrayAdapter) {
         lvTaskList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
