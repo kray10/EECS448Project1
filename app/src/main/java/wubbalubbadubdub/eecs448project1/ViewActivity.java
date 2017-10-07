@@ -174,6 +174,8 @@ public class ViewActivity extends Activity {
             ((Spinner)findViewById(R.id.tvMultiDates)).setVisibility(View.GONE);
             ((ListView)findViewById(R.id.tvTaskList)).setVisibility(View.GONE);
             ((TextView)findViewById(R.id.tvDate)).setVisibility(View.GONE);
+            ((TextView)findViewById(R.id.taskLabel)).setVisibility(View.GONE);
+
         } else {
             // Set availability
             ((TextView)findViewById(R.id.textView2)).setVisibility(View.GONE);
@@ -399,29 +401,51 @@ public class ViewActivity extends Activity {
     public void saveSelection(View v) {
         if (prevSignup) {
             // User has signed up previously, so call the update method
+            if(checkAllTimeSlotEmpty()){
             for (int i = 0; i < selectedTimeslots.size(); i++) {
                 if (dbHelper.updateSignup(currentID, currentUser, selectedTimeslots.get(i), eventDates.get(i)) > 0) {
                     statusMessage.setText("Successfully saved your availability");
+                    for (int j = 0; j < currentEvent.getTasks().size(); j++) {
+                        dbHelper.updateTasks(currentID, currentEvent.getTasks().get(j));
+                    }
+                    statusMessage.show();
+                    finish();
                 } else {
                     statusMessage.setText("Something went wrong");
                 }
-            }
+            }}else{statusMessage.setText("You must have at least one timeslot");
+                statusMessage.show();}
         } else {
+            if(checkAllTimeSlotEmpty()){
             for (int i = 0; i < selectedTimeslots.size(); i++) {
                 // User has not signed up before, so call the insert method
                 if (dbHelper.addSignup(currentID, currentUser, selectedTimeslots.get(i), eventDates.get(i)) != -1) {
                     statusMessage.setText("Successfully saved your availability");
+                    for (int j = 0; j < currentEvent.getTasks().size(); j++) {
+                        dbHelper.updateTasks(currentID, currentEvent.getTasks().get(j));
+                    }
+                    statusMessage.show();
+                    finish();
                 } else {
-                    statusMessage.setText("Somethign went wrong");
+                    statusMessage.setText("Something went wrong");
                 }
+            }}else{
+                statusMessage.setText("You must have at least one timeslot");
+                statusMessage.show();
             }
         }
-
-        for (int i = 0; i < currentEvent.getTasks().size(); i++) {
-            dbHelper.updateTasks(currentID, currentEvent.getTasks().get(i));
+    }
+    /**
+     *Used to check when user click save but didnot have any timeslots
+     *
+     */
+    public boolean checkAllTimeSlotEmpty(){
+        for (int i  = 0; i < selectedTimeslots.size(); i++){
+            if(!selectedTimeslots.get(i).isEmpty()){
+                return true;
+            }
         }
-        statusMessage.show();
-        finish();
+        return false;
     }
 
     /**
@@ -452,9 +476,7 @@ public class ViewActivity extends Activity {
      * This function updates the timeframe of the event on creation and when the 12h/24h is toggled.
      */
     private void updateTimeframe(int pos) {
-
         TextView eventTimeframe = (TextView) findViewById(R.id.tvEventTimeframe);
-
         eventTimeframe.setText("Event timeframe: " + HelperMethods.getTimeString(currentTimeslots.get(pos), format));
     }
 
@@ -533,10 +555,18 @@ public class ViewActivity extends Activity {
 
 
 }
+/**
+ *This is an Adapter of task ListView
+ * @param  'inflater' is the LayoutInflater of ViewAcitvity, List<Task> is a list to store all the task
+ */
+
 class taskAdapter extends BaseAdapter {
     private List<Task> mitem;
     private LayoutInflater mInflater;
-
+    /**
+     *This is a Constructor of an Adapter of task ListView
+     * @param  'inflater' is the LayoutInflater of ViewAcitvity, List<Task> is a list to store all the task
+     */
     public taskAdapter(LayoutInflater inflater, List<Task> items) {
         mitem = items;
         mInflater = inflater;
@@ -556,7 +586,11 @@ class taskAdapter extends BaseAdapter {
     public long getItemId(int i) {
         return i;
     }
-
+    /**
+     *
+     * @param  i is the position of ListView
+     * @return what view looks like
+     */
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
 

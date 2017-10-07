@@ -458,7 +458,7 @@ public class AddEventActivity extends Activity {
     }
     /**
      * initalization of DatePicker
-     *
+     * @param datePicker is the widget of datePicker
      */
     public void setupDatePicker(DatePicker datePicker){
         //Set Date Picker to current date, datePicker constraints etc.
@@ -498,7 +498,7 @@ public class AddEventActivity extends Activity {
     }
     /**
      * Check User dates, Make sure they will not add one day more than one time
-     *
+     * @param day , year, month is a date
      */
     public boolean checkSameDate(int day, int year ,int month){
         for(int i = 0; i < daylist.size(); i++) {
@@ -529,7 +529,7 @@ public class AddEventActivity extends Activity {
     }
     /**
      * reset the timeSlots table, show the timeSlots Table as the timeSlots
-     *
+     * @param timeSlots is a list of time slots, stored by Integer Object
      */
     public void setTimeSlots(List<Integer> timeSlots){
         TableLayout tableLayout = (TableLayout) findViewById(R.id.tbLayout);
@@ -548,7 +548,7 @@ public class AddEventActivity extends Activity {
     }
     /**
      * Check a Timeslot inside you timeslots_list or not
-     *
+     * @param index Integer
      */
     public boolean isInsideTimeSlots(int index){
         int count = selectedTimeslots.size();
@@ -572,7 +572,10 @@ public class AddEventActivity extends Activity {
             statusMessage.show();
         }
     }
-
+    /**
+     * used to setup tasklist, when click
+     * @param arrayAdapter, An adapter used by ListView
+     */
     private void setupTaskListClickListener(final ArrayAdapter arrayAdapter) {
         lvTaskList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -598,7 +601,10 @@ public class AddEventActivity extends Activity {
             }
         });
     }
-
+    /**
+     * onCLick fir addind task
+     * @param v is the view of button
+     */
     public void addTaskToEvent(View v) {
         final View current = v;
         final EditText input = new EditText(this);
