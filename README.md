@@ -1,6 +1,7 @@
 # Team J-Hawk's Schedule Planner v2
 
 ## EECS448 Project 2
+Members: Martin Nganga, Kevin Ray, Jian Shen, Yiju Yang
 
 ### TODOLIST
 
