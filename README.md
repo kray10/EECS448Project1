@@ -15,7 +15,7 @@
 #### AddEventActivity
 - ~~Add ability to select multiple days and different timeslots for each day~~ **DONE!**
 - ~~Add ability to copy timeslots from one date to another~~ **DONE!**
-- Add ability to add tasks for an event
+- ~~Add ability to add tasks for an event~~
 
 #### Event Creator View
 - ~~Display all timeslots for all dates for all user~~ **DONE!**
