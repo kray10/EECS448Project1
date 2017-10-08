@@ -59,7 +59,6 @@ public class AddEventActivity extends Activity {
 
     private ListView copy_lsitview;
     private Context mContext;
-    private AlertDialog.Builder dialog;
 
     private DatabaseHelper dbHelper;
     private Toast statusMessage;
@@ -82,7 +81,6 @@ public class AddEventActivity extends Activity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event);
-        dialog = new AlertDialog.Builder(this);
 
         mContext = getApplicationContext();
         final LayoutInflater inflater_copylist = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -583,6 +581,7 @@ public class AddEventActivity extends Activity {
      * @param arrayAdapter, An adapter used by ListView
      */
     private void setupTaskListClickListener(final ArrayAdapter arrayAdapter) {
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         lvTaskList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -601,9 +600,10 @@ public class AddEventActivity extends Activity {
                             public void onClick(DialogInterface dialogInterface, int i) {
                             }
                         })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
-                return  true;
+                        .setIcon(android.R.drawable.ic_dialog_alert);
+                final AlertDialog alertDialog = dialog.show();
+                if (!alertDialog.isShowing()) alertDialog.dismiss();
+                return true;
             }
         });
     }
@@ -614,11 +614,12 @@ public class AddEventActivity extends Activity {
      */
 
     public void addTaskToEvent(View v) {
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         final View current = v;
         final EditText input = new EditText(this);
         input.setSingleLine();
-        FrameLayout container = new FrameLayout(this);
-        FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        final FrameLayout container = new FrameLayout(this);
+        final FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
         params.setMargins(50, 0, 50, 0);
 
@@ -650,14 +651,17 @@ public class AddEventActivity extends Activity {
                                 ArrayAdapter adapter = (ArrayAdapter) lvTaskList.getAdapter();
                                 adapter.notifyDataSetChanged();
                         }
+
                     }
+
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
                     }
-                })
-        .show();
+                });
+        final AlertDialog alertDialog = dialog.show();
+        if (!alertDialog.isShowing()) alertDialog.dismiss();
     }
 }
